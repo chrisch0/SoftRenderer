@@ -3,6 +3,12 @@
 #include <cmath>
 
 template <typename T>
+class Vec3;
+
+template <typename T>
+class Vec4;
+
+template <typename T>
 class Vec2
 {
 public:
@@ -10,6 +16,7 @@ public:
 	Vec2() : x(0), y(0) {}
 	Vec2(T v) : x(v), y(v) {}
 	Vec2(T x, T y) : x(x), y(y) {}
+	Vec2(const Vec3<T>& v) : x(v.x), y(v.y) {}
 	~Vec2() {}
 
 	Vec2(const Vec2<T>& v) : x(v.x), y(v.y) {}
@@ -88,7 +95,8 @@ public:
 	T x, y, z;
 	Vec3() : x(0), y(0), z(0) {}
 	Vec3(T v) : x(x), y(v), z(v) {}
-	Vec3(T x, T y, T z) : x(x), y(x), z(x) {};
+	Vec3(T x, T y, T z) : x(x), y(x), z(x) {}
+	Vec3(const Vec4<T>& v) : x(v.x), y(v.y), z(v.z) {}
 	~Vec3() {}
 
 	Vec3<T>& operator=(const Vec3<T>& rhs)
@@ -158,7 +166,8 @@ class Vec4
 public:
 	T x, y, z, w;
 	Vec4() : x(0), y(0), z(0), w(0) {}
-	Vec4(T x, T y, T z, T w) : x(x), y(y), z(z), w(w) {};
+	Vec4(T x, T y, T z, T w) : x(x), y(y), z(z), w(w) {}
+	Vec4(const Vec3<T>& v, T w = 0) : x(v.x), y(v.y), z(v.z), w(w) {}
 	~Vec4() {};
 
 	Vec4<T>& operator=(const Vec4<T>& rhs)

@@ -1,6 +1,7 @@
 #include "renderer.h"
 #include <windowsx.h>
 #include <cstring>
+#include <limits>
 
 LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -180,6 +181,7 @@ void Renderer::Render(const Timer& timer)
 	int num_faces = m_indexBuffer.size() / 3;
 	for (int i = 0; i < num_faces; ++i)
 	{
+		// vertex shader stage
 		for (int j = 0; j < 3; ++j)
 		{
 			VSInput* vs_input = m_vertexBuffer.data() + m_indexBuffer[i * 3 + j];
@@ -196,15 +198,68 @@ void Renderer::Render(const Timer& timer)
 
 		// perspective division
 		static vec3f ndc_coords[3];
+		static float recip_w[3];
 		for (int j = 0; j < 3; ++j)
 		{
+			recip_w[j] = 1.f / outVertexAttri[j].sv_position.w;
 			outVertexAttri[j].sv_position = outVertexAttri[j].sv_position / outVertexAttri[j].sv_position.w;
 			//ndc_coords[j] = outVertexAttri[j].sv_position;
 		}
 
+		// TODO: back-face culling
+
+		// TODO: viewport mapping
+		static vec2f screen_coords[3];
+		static float screen_depth[3];
+		for (int j = 0; j < 3; ++j)
+		{
+			vec3f ndc_coord = outVertexAttri[j].sv_position;
+			float x = (ndc_coord.x + 1.f) * 0.5f * (float)m_frameBuffer->GetWidth() + 0.0f; // + topleftX
+			float y = (1.f - ndc_coord.y) * 0.5f * (float)m_frameBuffer->GetHeight() + 0.0f; // + topleftY
+			float z = 0.0f + ndc_coord.z * (1.0 - 0.0); // minDepth + z * (maxDepth - minDepth)
+			outVertexAttri[j].sv_position = vec4f(x, y, z, 1.0f);
+			screen_coords[j] = vec2f(x, y);
+			screen_coords[j] = z;
+		}
+		
 		// TODO: build bounding box
 
-		//for (int x = 0; x < )
+		for (int x = 0; x < m_frameBuffer->GetWidth(); ++x)
+		{
+			for (int y = 0; y < m_frameBuffer->GetHeight(); ++y)
+			{
+				vec2f point = vec2f((float)x + 0.5f, (float)y + 0.5f);
+				vec3f weights;
+				{
+					vec2f a = screen_coords[0];
+					vec2f b = screen_coords[1];
+					vec2f c = screen_coords[2];
+					vec2f ab = b - a;
+					vec2f ac = c - a;
+					vec2f ap = point - a;
+					float factor = 1.f / (ab.x * ac.y - ab.y * ac.x);
+					float s = (ac.y * ap.x - ac.x * ap.y) * factor;
+					float t = (ab.x * ap.y - ab.y * ap.x) * factor;
+					weights = vec3f(1 - s - t, s, t);
+				}
+				// if pixel inside triangle
+				if (weights.x > -std::numeric_limits<float>::epsilon() && 
+					weights.y > -std::numeric_limits<float>::epsilon() && 
+					weights.z > -std::numeric_limits<float>::epsilon())
+				{
+					// interpolate depth
+					float depth = screen_depth[0] * weights.x + screen_depth[1] * weights.y + screen_depth[2] * weights.z;
+
+					// TODO: add early depth test
+					// if (pipelineState.depthStencilState... && depth < depthBuffer[x][y])
+					// interpolate vertex attributes
+					PSInput pixel_attri;
+					{
+
+					}
+				}
+			}
+		}
 
 	}
 }

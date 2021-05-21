@@ -23,6 +23,21 @@ using Vertex = VSInput;
 using VertexShader = std::function<VSOut(VSInput*, void*)>;
 using PixelShader = std::function<Color(PSInput*, void*)>;
 
+struct Viewport
+{
+	float topLeftX;
+	float topLeftY;
+	float width;
+	float height;
+	float minDepth;
+	float maxDepth;
+};
+
+struct RasterizerState
+{
+
+};
+
 struct PipelineState
 {
 	VertexShader vertexShader;
@@ -32,3 +47,4 @@ struct PipelineState
 	//VSOut inVertexAttribute[10];
 	//VSOut outVertexAttribute[10];
 };
+

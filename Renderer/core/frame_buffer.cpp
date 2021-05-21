@@ -49,8 +49,9 @@ FrameBuffer& FrameBuffer::operator=(const FrameBuffer& rhs)
 void FrameBuffer::SetColorRGB(int x, int y, Color color)
 {
 	assert(x < m_width && y < m_height);
-	int flipped_row = m_height - y - 1;
-	int index = flipped_row * m_width * 4 + x * 4;
+	//int flipped_row = m_height - y - 1;
+	//int index = flipped_row * m_width * 4 + x * 4;
+	int index = m_width * y * 4 + x * 4;
 	m_buffer[index] = color.x;
 	m_buffer[index + 1] = color.y;
 	m_buffer[index + 2] = color.z;
@@ -59,8 +60,9 @@ void FrameBuffer::SetColorRGB(int x, int y, Color color)
 void FrameBuffer::SetColorBGR(int x, int y, Color color)
 {
 	assert(x < m_width && y < m_height);
-	int flipped_row = m_height - y - 1;
-	int index = flipped_row * m_width * 4 + x * 4;
+	//int flipped_row = m_height - y - 1;
+	//int index = flipped_row * m_width * 4 + x * 4;
+	int index = m_width * y * 4 + x * 4;
 	m_buffer[index] = color.z;
 	m_buffer[index + 1] = color.y;
 	m_buffer[index + 2] = color.x;
