@@ -18,6 +18,7 @@ public:
 	Renderer& operator=(const Renderer&) = delete;
 	static Renderer* GetApp();
 	bool Initialize(VertexShader vs, PixelShader ps);
+	void InitScene();
 	void MainLoop();
 	LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 private:
@@ -33,11 +34,12 @@ private:
 	bool InitMainWindow();
 	HDC CreateFrameBuffer();
 
-	void InitScene();
 	void Update(const Timer& timer);
 	void Render(const Timer& timer);
 
 	typedef enum { BUTTON_L, BUTTON_R, BUTTON_MID } button_t;
+	void CalculateFrameStats();
+	void OnResize();
 	void OnKeyDown(WPARAM key);
 	void OnKeyUp(WPARAM key);
 	void OnMouseDown(button_t button, int x, int y);
@@ -49,8 +51,12 @@ private:
 
 	VSOut inVertexAttri[10];
 	PSInput outVertexAttri[10];
+	ConstantBuffer m_passCB;
 
 	std::vector<Vertex> m_vertexBuffer;
 	std::vector<uint32_t> m_indexBuffer;
 	FrameBuffer* m_frameBuffer;
+
+	vec2f m_lastLMouseClick;
+	vec2f m_currentMousePos;
 };

@@ -1,6 +1,6 @@
 #pragma once
 #include <functional>
-#include "math/vec.h"
+#include "math/math.h"
 
 struct VSInput
 {
@@ -15,6 +15,13 @@ struct PSInput
 	vec3f normal;
 	vec3f positionWS;
 	vec2f uv;
+};
+
+struct ConstantBuffer
+{
+	vec4f resolution;
+	vec2f time;
+	vec4f mouse;
 };
 
 using VSOut = PSInput;

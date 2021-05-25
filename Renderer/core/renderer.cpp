@@ -2,6 +2,8 @@
 #include <windowsx.h>
 #include <cstring>
 #include <limits>
+#include <iostream>
+#include "shader_functions.h"
 
 LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -61,8 +63,11 @@ void Renderer::MainLoop()
 		else
 		{
 			m_timer.Tick();
+			CalculateFrameStats();
 			if (!m_appPaused)
 			{
+				Update(m_timer);
+				Render(m_timer);
 				HDC window_dc = GetDC(m_hMainWnd);
 				BitBlt(window_dc, 0, 0, m_clientWidth, m_clientHeight, m_memoryDC, 0, 0, SRCCOPY);
 				ReleaseDC(m_hMainWnd, window_dc);
@@ -74,8 +79,6 @@ void Renderer::MainLoop()
 		}
 	}
 }
-
-
 
 bool Renderer::InitMainWindow()
 {
@@ -173,7 +176,9 @@ void Renderer::InitScene()
 
 void Renderer::Update(const Timer& timer)
 {
-
+	m_passCB.resolution = vec4f(m_frameBuffer->GetWidth(), m_frameBuffer->GetHeight(), 1.f / m_frameBuffer->GetWidth(), 1.f / m_frameBuffer->GetHeight());
+	m_passCB.mouse = vec4f(m_currentMousePos, m_lastLMouseClick);
+	m_passCB.time = vec2f(timer.TotalTime(), timer.DeltaTime());
 }
 
 void Renderer::Render(const Timer& timer)
@@ -184,7 +189,7 @@ void Renderer::Render(const Timer& timer)
 		// vertex shader stage
 		for (int j = 0; j < 3; ++j)
 		{
-			VSInput* vs_input = m_vertexBuffer.data() + m_indexBuffer[i * 3 + j];
+			VSInput* vs_input = &m_vertexBuffer[m_indexBuffer[i * 3 + j]];
 			inVertexAttri[j] = m_pipelineState.vertexShader(vs_input, nullptr);
 		}
 
@@ -219,7 +224,7 @@ void Renderer::Render(const Timer& timer)
 			float z = 0.0f + ndc_coord.z * (1.0 - 0.0); // minDepth + z * (maxDepth - minDepth)
 			outVertexAttri[j].sv_position = vec4f(x, y, z, 1.0f);
 			screen_coords[j] = vec2f(x, y);
-			screen_coords[j] = z;
+			screen_depth[j] = z;
 		}
 		
 		// TODO: build bounding box
@@ -255,8 +260,23 @@ void Renderer::Render(const Timer& timer)
 					// interpolate vertex attributes
 					PSInput pixel_attri;
 					{
-
+						float* a0 = (float*)&(outVertexAttri[0]);
+						float* a1 = (float*)&(outVertexAttri[1]);
+						float* a2 = (float*)&(outVertexAttri[2]);
+						float* r = (float*)&pixel_attri;
+						float weight0 = recip_w[0] * weights.x;
+						float weight1 = recip_w[1] * weights.y;
+						float weight2 = recip_w[2] * weights.z;
+						float norm = 1.f / (weight0 + weight1 + weight2);
+						// perspective correct interpolation
+						for (int i = 0; i < sizeof(PSInput) / sizeof(float); ++i)
+						{
+							float attri = norm * (a0[i] * weight0 + a1[i] * weight1 + a2[i] * weight2);
+							r[i] = attri;
+						}
 					}
+					Color pixel_color = m_pipelineState.pixelShader(&pixel_attri, &m_passCB);
+					m_frameBuffer->SetColorBGR(x, y, pixel_color);
 				}
 			}
 		}
@@ -268,6 +288,13 @@ LRESULT Renderer::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
+	case WM_SIZE:
+		if (wParam != SIZE_MINIMIZED)
+		{
+			m_clientHeight = HIWORD(lParam);
+			m_clientWidth = LOWORD(lParam);
+		}
+		return 0;
 	case WM_ACTIVATE:
 		if (LOWORD(wParam) == WA_INACTIVE)
 		{
@@ -299,12 +326,20 @@ LRESULT Renderer::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_RBUTTONUP:
 		OnMouseUp(BUTTON_R, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
+	case WM_MOUSEMOVE:
+		OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		return 0;
 	case WM_MOUSEWHEEL:
 		float offset = GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
 		OnMouseScroll(offset);
 		return 0;
 	}
 	return DefWindowProc(hwnd, msg, wParam, lParam);
+}
+
+void Renderer::OnResize()
+{
+
 }
 
 void Renderer::OnKeyDown(WPARAM key)
@@ -319,12 +354,16 @@ void Renderer::OnKeyUp(WPARAM key)
 
 void Renderer::OnMouseDown(button_t button, int x, int y)
 {
+	m_lastLMouseClick.x = x;
+	m_lastLMouseClick.y = y;
 
+
+	//SetCapture(m_hMainWnd);
 }
 
 void Renderer::OnMouseUp(button_t button, int x, int y)
 {
-
+	//ReleaseCapture();
 }
 
 void Renderer::OnMouseScroll(float scroll)
@@ -334,5 +373,35 @@ void Renderer::OnMouseScroll(float scroll)
 
 void Renderer::OnMouseMove(WPARAM btnState, int x, int y)
 {
+	if (DragDetect(m_hMainWnd, { x, y }))
+	{
+		m_currentMousePos.x = x;
+		m_currentMousePos.y = y;
+	}
+}
 
+void Renderer::CalculateFrameStats()
+{
+	static int frameCnt = 0;
+	static float timeElapsed = 0.f;
+
+	frameCnt++;
+
+	if ((m_timer.TotalTime() - timeElapsed) >= 1.f)
+	{
+		float fps = (float)frameCnt;
+		float mspf = 1000.f / fps;
+
+		std::wstring fpsStr = std::to_wstring(fps);
+		std::wstring mspfStr = std::to_wstring(mspf);
+
+		std::wstring windowText = m_mainWndCaption +
+			L"	 fps: " + fpsStr +
+			L"	mspf: " + mspfStr;
+
+		SetWindowTextW(m_hMainWnd, windowText.c_str());
+
+		frameCnt = 0;
+		timeElapsed += 1.f;
+	}
 }

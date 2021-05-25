@@ -2,6 +2,7 @@
 #include <exception>
 #include <string>
 #include <iostream>
+#include <algorithm>
 #include "frame_buffer.h"
 
 FrameBuffer::FrameBuffer(int width, int height) :
@@ -52,9 +53,9 @@ void FrameBuffer::SetColorRGB(int x, int y, Color color)
 	//int flipped_row = m_height - y - 1;
 	//int index = flipped_row * m_width * 4 + x * 4;
 	int index = m_width * y * 4 + x * 4;
-	m_buffer[index] = color.x;
-	m_buffer[index + 1] = color.y;
-	m_buffer[index + 2] = color.z;
+	m_buffer[index] = std::clamp(color.x, 0.0f, 1.0f) * 255;
+	m_buffer[index + 1] = std::clamp(color.y, 0.0f, 1.0f) * 255;
+	m_buffer[index + 2] = std::clamp(color.z, 0.0f, 1.0f) * 255;
 }
 
 void FrameBuffer::SetColorBGR(int x, int y, Color color)
@@ -63,9 +64,9 @@ void FrameBuffer::SetColorBGR(int x, int y, Color color)
 	//int flipped_row = m_height - y - 1;
 	//int index = flipped_row * m_width * 4 + x * 4;
 	int index = m_width * y * 4 + x * 4;
-	m_buffer[index] = color.z;
-	m_buffer[index + 1] = color.y;
-	m_buffer[index + 2] = color.x;
+	m_buffer[index] = std::clamp(color.z, 0.0f, 1.0f) * 255;
+	m_buffer[index + 1] = std::clamp(color.y, 0.0f, 1.0f) * 255;
+	m_buffer[index + 2] = std::clamp(color.x, 0.0f, 1.0f) * 255;
 }
 
 void FrameBuffer::SetBuffer(unsigned char* buffer)

@@ -70,10 +70,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)Renderer\Renderer;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Renderer;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)Renderer\Renderer;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Renderer;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -92,6 +92,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -120,6 +121,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -130,6 +132,7 @@
   <ItemGroup>
     <ClCompile Include="Renderer\core\frame_buffer.cpp" />
     <ClCompile Include="Renderer\core\renderer.cpp" />
+    <ClCompile Include="Renderer\core\shader_functions.cpp" />
     <ClCompile Include="Renderer\main.cpp" />
     <ClCompile Include="Renderer\math\vec.cpp" />
     <ClCompile Include="Renderer\utils\timer.cpp" />
@@ -138,6 +141,8 @@
     <ClInclude Include="Renderer\core\frame_buffer.h" />
     <ClInclude Include="Renderer\core\renderer.h" />
     <ClInclude Include="Renderer\core\graphics.h" />
+    <ClInclude Include="Renderer\core\shader_functions.h" />
+    <ClInclude Include="Renderer\math\math.h" />
     <ClInclude Include="Renderer\math\vec.h" />
     <ClInclude Include="Renderer\shaders\fullscreen_quad.h" />
     <ClInclude Include="Renderer\utils\timer.h" />

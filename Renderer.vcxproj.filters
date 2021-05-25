@@ -34,6 +34,9 @@
     <ClCompile Include="Renderer\math\vec.cpp">
       <Filter>math</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer\core\shader_functions.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renderer\utils\timer.h">
@@ -52,6 +55,12 @@
       <Filter>shaders</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\core\graphics.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\math\math.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\core\shader_functions.h">
       <Filter>core</Filter>
     </ClInclude>
   </ItemGroup>

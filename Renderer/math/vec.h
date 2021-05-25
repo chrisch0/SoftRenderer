@@ -1,6 +1,7 @@
 #pragma once
 #include <initializer_list>
 #include <cmath>
+#include <ostream>
 
 template <typename T>
 class Vec3;
@@ -17,6 +18,7 @@ public:
 	Vec2(T v) : x(v), y(v) {}
 	Vec2(T x, T y) : x(x), y(y) {}
 	Vec2(const Vec3<T>& v) : x(v.x), y(v.y) {}
+	Vec2(const Vec4<T>& v) : x(v.x), y(v.y) {}
 	~Vec2() {}
 
 	Vec2(const Vec2<T>& v) : x(v.x), y(v.y) {}
@@ -81,12 +83,13 @@ public:
 		return Vec2<T>(-x, -y);
 	}
 
-	double LengthSquared() const { return x * x + y * y; }
-	double Length() const { return std::sqrt(x * x + y * y); }
+	T LengthSquared() const { return x * x + y * y; }
+	T Length() const { return std::sqrt(x * x + y * y); }
 };
 
-using Vec2d = Vec2<double>;
+using vec2d = Vec2<double>;
 using vec2f = Vec2<float>;
+using vec2i = Vec2<int>;
 
 template <typename T>
 class Vec3
@@ -95,7 +98,7 @@ public:
 	T x, y, z;
 	Vec3() : x(0), y(0), z(0) {}
 	Vec3(T v) : x(x), y(v), z(v) {}
-	Vec3(T x, T y, T z) : x(x), y(x), z(x) {}
+	Vec3(T x, T y, T z) : x(x), y(y), z(z) {}
 	Vec3(const Vec4<T>& v) : x(v.x), y(v.y), z(v.z) {}
 	~Vec3() {}
 
@@ -168,6 +171,7 @@ public:
 	Vec4() : x(0), y(0), z(0), w(0) {}
 	Vec4(T x, T y, T z, T w) : x(x), y(y), z(z), w(w) {}
 	Vec4(const Vec3<T>& v, T w = 0) : x(v.x), y(v.y), z(v.z), w(w) {}
+	Vec4(const Vec2<T>& v0, const Vec2<T>& v1) : x(v0.x), y(v0.y), z(v1.x), w(v1.y) {}
 	~Vec4() {};
 
 	Vec4<T>& operator=(const Vec4<T>& rhs)
@@ -215,11 +219,23 @@ public:
 		x /= s; y /= s; z /= s; w /= s;
 		return *this;
 	}
+
+	Vec4<T> operator/(const Vec4<T>& s) const
+	{
+		return Vec4<T>(x / s.x, y / s.y, z / s.z, w / s.w);
+	}
+
+	Vec4<T> operator/=(const Vec4<T>& s) const
+	{
+		x /= s.x; y /= s.y; z /= s.z; w /= s.w;
+		return *this;
+	}
+
 private:
 
 };
 
-using Color = Vec4<unsigned char>;
+using Color = Vec4<float>;
 using vec4f = Vec4<float>;
 
 template <typename T>
@@ -235,8 +251,37 @@ inline Vec3<T> operator*(const T& s, const Vec3<T>& rhs)
 }
 
 template <typename T>
+inline Vec3<T> operator+(const T& s, const Vec3<T>& rhs)
+{
+	return rhs + s;
+}
+
+template <typename T>
 Vec3<T> normalize(const Vec3<T>& v)
 {
 	return v / v.Length();
 }
 
+template <typename T>
+Vec3<T> cos(const Vec3<T>& v)
+{
+	return Vec3<T>(std::cos(v.x), std::cos(v.y), std::cos(v.z));
+}
+
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const Vec2<T>& v)
+{
+	return os << "(" << v.x << ", " << v.y << ")";
+}
+
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const Vec3<T>& v)
+{
+	return os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
+}
+
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const Vec4<T>& v)
+{
+	return os << "(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")";
+}
