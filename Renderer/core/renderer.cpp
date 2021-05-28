@@ -3,6 +3,8 @@
 #include <cstring>
 #include <limits>
 #include <iostream>
+#include <thread>
+#include "omp.h"
 #include "shader_functions.h"
 
 LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -43,6 +45,8 @@ bool Renderer::Initialize(VertexShader vs, PixelShader ps)
 
 	m_pipelineState.vertexShader = vs;
 	m_pipelineState.pixelShader = ps;
+
+	omp_set_num_threads(std::thread::hardware_concurrency());
 
 	return true;
 }
@@ -228,7 +232,7 @@ void Renderer::Render(const Timer& timer)
 		}
 		
 		// TODO: build bounding box
-
+#pragma omp parallel for schedule(dynamic)
 		for (int x = 0; x < m_frameBuffer->GetWidth(); ++x)
 		{
 			for (int y = 0; y < m_frameBuffer->GetHeight(); ++y)
@@ -239,13 +243,21 @@ void Renderer::Render(const Timer& timer)
 					vec2f a = screen_coords[0];
 					vec2f b = screen_coords[1];
 					vec2f c = screen_coords[2];
-					vec2f ab = b - a;
+					/*vec2f ab = b - a;
 					vec2f ac = c - a;
 					vec2f ap = point - a;
 					float factor = 1.f / (ab.x * ac.y - ab.y * ac.x);
 					float s = (ac.y * ap.x - ac.x * ap.y) * factor;
 					float t = (ab.x * ap.y - ab.y * ap.x) * factor;
-					weights = vec3f(1 - s - t, s, t);
+					weights = vec3f(1 - s - t, s, t);*/
+					vec2f bp = point - b;
+					vec2f bc = c - b;
+					vec2f ba = a - b;
+					vec2f cp = point - c;
+					vec2f ca = a - c;
+					float alpha = (-bp.x * bc.y + bp.y * bc.x) / (-ba.x * bc.y + ba.y * bc.x);
+					float beta = (-cp.x * ca.y + cp.y * ca.x) / (bc.x * ca.y - bc.y * ca.x);
+					weights = vec3f(alpha, beta, 1 - alpha - beta);
 				}
 				// if pixel inside triangle
 				if (weights.x > -std::numeric_limits<float>::epsilon() && 
@@ -277,6 +289,10 @@ void Renderer::Render(const Timer& timer)
 					}
 					Color pixel_color = m_pipelineState.pixelShader(&pixel_attri, &m_passCB);
 					m_frameBuffer->SetColorBGR(x, y, pixel_color);
+				}
+				else
+				{
+					//m_frameBuffer->SetColorBGR(x, y, Color(1.f, 1.f, 1.0f, 1.0f));
 				}
 			}
 		}
