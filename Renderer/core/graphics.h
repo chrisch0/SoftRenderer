@@ -7,6 +7,7 @@ struct VSInput
 	vec3f position;
 	vec2f uv;
 	vec3f normal;
+	Color color;
 };
 
 struct PSInput
@@ -15,6 +16,7 @@ struct PSInput
 	vec3f normal;
 	vec3f positionWS;
 	vec2f uv;
+	vec4f color;
 };
 
 struct ConstantBuffer

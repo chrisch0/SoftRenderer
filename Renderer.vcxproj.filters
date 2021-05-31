@@ -37,6 +37,15 @@
     <ClCompile Include="Renderer\core\shader_functions.cpp">
       <Filter>core</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer\core\camera.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\math\matrix.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\math\functions.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renderer\utils\timer.h">
@@ -62,6 +71,15 @@
     </ClInclude>
     <ClInclude Include="Renderer\core\shader_functions.h">
       <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\core\camera.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\math\matrix.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\math\functions.h">
+      <Filter>math</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

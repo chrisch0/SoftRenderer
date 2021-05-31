@@ -132,19 +132,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Renderer\core\camera.cpp" />
     <ClCompile Include="Renderer\core\frame_buffer.cpp" />
     <ClCompile Include="Renderer\core\renderer.cpp" />
     <ClCompile Include="Renderer\core\shader_functions.cpp" />
     <ClCompile Include="Renderer\main.cpp" />
+    <ClCompile Include="Renderer\math\functions.cpp" />
+    <ClCompile Include="Renderer\math\matrix.cpp" />
     <ClCompile Include="Renderer\math\vec.cpp" />
     <ClCompile Include="Renderer\utils\timer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Renderer\core\camera.h" />
     <ClInclude Include="Renderer\core\frame_buffer.h" />
     <ClInclude Include="Renderer\core\renderer.h" />
     <ClInclude Include="Renderer\core\graphics.h" />
     <ClInclude Include="Renderer\core\shader_functions.h" />
+    <ClInclude Include="Renderer\math\functions.h" />
     <ClInclude Include="Renderer\math\math.h" />
+    <ClInclude Include="Renderer\math\matrix.h" />
     <ClInclude Include="Renderer\math\vec.h" />
     <ClInclude Include="Renderer\shaders\fullscreen_quad.h" />
     <ClInclude Include="Renderer\utils\timer.h" />

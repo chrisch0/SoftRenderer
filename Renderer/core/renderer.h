@@ -59,4 +59,5 @@ private:
 
 	vec2f m_lastLMouseClick;
 	vec2f m_currentMousePos;
+	vec2f m_deltaMousePos;
 };

@@ -14,6 +14,7 @@ FrameBuffer::FrameBuffer(int width, int height, int channels) :
 	try
 	{
 		m_buffer = new unsigned char[m_bufferSize]();
+		//std::memset(m_buffer, 0, m_bufferSize);
 	}
 	catch (const std::bad_alloc& e)
 	{
@@ -67,9 +68,15 @@ void FrameBuffer::SetColorBGR(int x, int y, Color color)
 	m_buffer[index] = std::clamp(color.z, 0.0f, 1.0f) * 255;
 	m_buffer[index + 1] = std::clamp(color.y, 0.0f, 1.0f) * 255;
 	m_buffer[index + 2] = std::clamp(color.x, 0.0f, 1.0f) * 255;
+	m_buffer[index + 3] = std::clamp(color.w, 0.0f, 1.0f) * 255;
 }
 
 void FrameBuffer::SetBuffer(unsigned char* buffer)
 {
 	m_buffer = buffer;
+}
+
+void FrameBuffer::Clear(Color color)
+{
+	//std::memset(m_buffer, )
 }

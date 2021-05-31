@@ -142,6 +142,7 @@ HDC Renderer::CreateFrameBuffer()
 	bitmap_header.biHeight = -m_clientHeight;
 	bitmap_header.biPlanes = 1;
 	bitmap_header.biBitCount = 32;
+	//bitmap_header.biCompression = BI_RGB;
 	dib_bitmap = CreateDIBSection(memory_dc, (BITMAPINFO*)&bitmap_header,
 		DIB_RGB_COLORS, (void**)&buffer, NULL, 0);
 	assert(dib_bitmap != NULL);
@@ -160,6 +161,7 @@ void Renderer::InitScene()
 	v.position = vec3f(-1.f, -1.f, 0.f);
 	v.normal = vec3f(0.f, 0.f, -1.f);
 	v.uv = vec2f(0.f, 1.f);
+	v.color = vec4f(1.f, 0.f, 0.f, 1.f);
 	m_vertexBuffer.push_back(v);
 	v.position = vec3f(1.f, -1.f, 0.f);
 	v.uv = vec2f(1.f, 1.f);
@@ -167,15 +169,24 @@ void Renderer::InitScene()
 	v.position = vec3f(-1.f, 1.f, 0.f);
 	v.uv = vec2f(0.f, 0.f);
 	m_vertexBuffer.push_back(v);
+
 	v.position = vec3f(1.f, 1.f, 0.f);
 	v.uv = vec2f(1.f, 0.f);
+	v.color = vec4f(0.f, 0.f, 0.f, 0.f);
 	m_vertexBuffer.push_back(v);
+	v.position = vec3f(1.f, -1.f, 0.f);
+	v.uv = vec2f(1.f, 1.f);
+	m_vertexBuffer.push_back(v);
+	v.position = vec3f(-1.f, 1.f, 0.f);
+	v.uv = vec2f(0.f, 0.f);
+	m_vertexBuffer.push_back(v);
+
 	m_indexBuffer.push_back(0);
 	m_indexBuffer.push_back(1);
 	m_indexBuffer.push_back(2);
-	m_indexBuffer.push_back(1);
+	m_indexBuffer.push_back(4);
 	m_indexBuffer.push_back(3);
-	m_indexBuffer.push_back(2);
+	m_indexBuffer.push_back(5);
 }
 
 void Renderer::Update(const Timer& timer)
@@ -281,10 +292,10 @@ void Renderer::Render(const Timer& timer)
 						float weight2 = recip_w[2] * weights.z;
 						float norm = 1.f / (weight0 + weight1 + weight2);
 						// perspective correct interpolation
-						for (int i = 0; i < sizeof(PSInput) / sizeof(float); ++i)
+						for (int j = 0; j < sizeof(PSInput) / sizeof(float); ++j)
 						{
-							float attri = norm * (a0[i] * weight0 + a1[i] * weight1 + a2[i] * weight2);
-							r[i] = attri;
+							float attri = norm * (a0[j] * weight0 + a1[j] * weight1 + a2[j] * weight2);
+							r[j] = attri;
 						}
 					}
 					Color pixel_color = m_pipelineState.pixelShader(&pixel_attri, &m_passCB);
@@ -296,7 +307,6 @@ void Renderer::Render(const Timer& timer)
 				}
 			}
 		}
-
 	}
 }
 
@@ -391,6 +401,8 @@ void Renderer::OnMouseMove(WPARAM btnState, int x, int y)
 {
 	if (DragDetect(m_hMainWnd, { x, y }))
 	{
+		m_deltaMousePos.x = x - m_currentMousePos.x;
+		m_deltaMousePos.y = y - m_currentMousePos.y;
 		m_currentMousePos.x = x;
 		m_currentMousePos.y = y;
 	}

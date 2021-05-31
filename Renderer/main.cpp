@@ -3,7 +3,7 @@
 
 int main(int argc, const char* argv[])
 {
-	Renderer renderer(800, 600);
+	Renderer renderer(640, 360);
 	renderer.Initialize(FullScreenQuadVS, FullScreenQuadPS);
 	renderer.InitScene();
 	renderer.MainLoop();
