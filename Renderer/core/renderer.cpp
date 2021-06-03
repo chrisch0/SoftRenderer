@@ -158,27 +158,27 @@ HDC Renderer::CreateFrameBuffer()
 void Renderer::InitScene()
 {
 	Vertex v;
-	v.position = vec3f(-1.f, -1.f, 0.f);
-	v.normal = vec3f(0.f, 0.f, -1.f);
-	v.uv = vec2f(0.f, 1.f);
-	v.color = vec4f(1.f, 0.f, 0.f, 1.f);
+	v.position = float3(-1.f, -1.f, 0.f);
+	v.normal = float3(0.f, 0.f, -1.f);
+	v.uv = float2(0.f, 1.f);
+	v.color = float4(1.f, 0.f, 0.f, 1.f);
 	m_vertexBuffer.push_back(v);
-	v.position = vec3f(1.f, -1.f, 0.f);
-	v.uv = vec2f(1.f, 1.f);
+	v.position = float3(1.f, -1.f, 0.f);
+	v.uv = float2(1.f, 1.f);
 	m_vertexBuffer.push_back(v);
-	v.position = vec3f(-1.f, 1.f, 0.f);
-	v.uv = vec2f(0.f, 0.f);
+	v.position = float3(-1.f, 1.f, 0.f);
+	v.uv = float2(0.f, 0.f);
 	m_vertexBuffer.push_back(v);
 
-	v.position = vec3f(1.f, 1.f, 0.f);
-	v.uv = vec2f(1.f, 0.f);
-	v.color = vec4f(0.f, 0.f, 0.f, 0.f);
+	v.position = float3(1.f, 1.f, 0.f);
+	v.uv = float2(1.f, 0.f);
+	v.color = float4(0.f, 0.f, 0.f, 0.f);
 	m_vertexBuffer.push_back(v);
-	v.position = vec3f(1.f, -1.f, 0.f);
-	v.uv = vec2f(1.f, 1.f);
+	v.position = float3(1.f, -1.f, 0.f);
+	v.uv = float2(1.f, 1.f);
 	m_vertexBuffer.push_back(v);
-	v.position = vec3f(-1.f, 1.f, 0.f);
-	v.uv = vec2f(0.f, 0.f);
+	v.position = float3(-1.f, 1.f, 0.f);
+	v.uv = float2(0.f, 0.f);
 	m_vertexBuffer.push_back(v);
 
 	m_indexBuffer.push_back(0);
@@ -191,9 +191,9 @@ void Renderer::InitScene()
 
 void Renderer::Update(const Timer& timer)
 {
-	m_passCB.resolution = vec4f(m_frameBuffer->GetWidth(), m_frameBuffer->GetHeight(), 1.f / m_frameBuffer->GetWidth(), 1.f / m_frameBuffer->GetHeight());
-	m_passCB.mouse = vec4f(m_currentMousePos, m_lastLMouseClick);
-	m_passCB.time = vec2f(timer.TotalTime(), timer.DeltaTime());
+	m_passCB.resolution = float4(m_frameBuffer->GetWidth(), m_frameBuffer->GetHeight(), 1.f / m_frameBuffer->GetWidth(), 1.f / m_frameBuffer->GetHeight());
+	m_passCB.mouse = float4(m_currentMousePos.x, m_currentMousePos.y, m_lastLMouseClick.x, m_lastLMouseClick.y);
+	m_passCB.time = float2(timer.TotalTime(), timer.DeltaTime());
 }
 
 void Renderer::Render(const Timer& timer)
@@ -217,7 +217,7 @@ void Renderer::Render(const Timer& timer)
 		// rasterize triangle
 
 		// perspective division
-		static vec3f ndc_coords[3];
+		static float3 ndc_coords[3];
 		static float recip_w[3];
 		for (int j = 0; j < 3; ++j)
 		{
@@ -229,16 +229,16 @@ void Renderer::Render(const Timer& timer)
 		// TODO: back-face culling
 
 		// TODO: viewport mapping
-		static vec2f screen_coords[3];
+		static float2 screen_coords[3];
 		static float screen_depth[3];
 		for (int j = 0; j < 3; ++j)
 		{
-			vec3f ndc_coord = outVertexAttri[j].sv_position;
+			float3 ndc_coord = outVertexAttri[j].sv_position;
 			float x = (ndc_coord.x + 1.f) * 0.5f * (float)m_frameBuffer->GetWidth() + 0.0f; // + topleftX
 			float y = (1.f - ndc_coord.y) * 0.5f * (float)m_frameBuffer->GetHeight() + 0.0f; // + topleftY
 			float z = 0.0f + ndc_coord.z * (1.0 - 0.0); // minDepth + z * (maxDepth - minDepth)
-			outVertexAttri[j].sv_position = vec4f(x, y, z, 1.0f);
-			screen_coords[j] = vec2f(x, y);
+			outVertexAttri[j].sv_position = float4(x, y, z, 1.0f);
+			screen_coords[j] = float2(x, y);
 			screen_depth[j] = z;
 		}
 		
@@ -248,27 +248,27 @@ void Renderer::Render(const Timer& timer)
 		{
 			for (int y = 0; y < m_frameBuffer->GetHeight(); ++y)
 			{
-				vec2f point = vec2f((float)x + 0.5f, (float)y + 0.5f);
-				vec3f weights;
+				float2 point = float2((float)x + 0.5f, (float)y + 0.5f);
+				float3 weights;
 				{
-					vec2f a = screen_coords[0];
-					vec2f b = screen_coords[1];
-					vec2f c = screen_coords[2];
-					/*vec2f ab = b - a;
-					vec2f ac = c - a;
-					vec2f ap = point - a;
+					float2 a = screen_coords[0];
+					float2 b = screen_coords[1];
+					float2 c = screen_coords[2];
+					/*float2 ab = b - a;
+					float2 ac = c - a;
+					float2 ap = point - a;
 					float factor = 1.f / (ab.x * ac.y - ab.y * ac.x);
 					float s = (ac.y * ap.x - ac.x * ap.y) * factor;
 					float t = (ab.x * ap.y - ab.y * ap.x) * factor;
-					weights = vec3f(1 - s - t, s, t);*/
-					vec2f bp = point - b;
-					vec2f bc = c - b;
-					vec2f ba = a - b;
-					vec2f cp = point - c;
-					vec2f ca = a - c;
+					weights = float3(1 - s - t, s, t);*/
+					float2 bp = point - b;
+					float2 bc = c - b;
+					float2 ba = a - b;
+					float2 cp = point - c;
+					float2 ca = a - c;
 					float alpha = (-bp.x * bc.y + bp.y * bc.x) / (-ba.x * bc.y + ba.y * bc.x);
 					float beta = (-cp.x * ca.y + cp.y * ca.x) / (bc.x * ca.y - bc.y * ca.x);
-					weights = vec3f(alpha, beta, 1 - alpha - beta);
+					weights = float3(alpha, beta, 1 - alpha - beta);
 				}
 				// if pixel inside triangle
 				if (weights.x > -std::numeric_limits<float>::epsilon() && 
@@ -384,12 +384,12 @@ void Renderer::OnMouseDown(button_t button, int x, int y)
 	m_lastLMouseClick.y = y;
 
 
-	//SetCapture(m_hMainWnd);
+	SetCapture(m_hMainWnd);
 }
 
 void Renderer::OnMouseUp(button_t button, int x, int y)
 {
-	//ReleaseCapture();
+	ReleaseCapture();
 }
 
 void Renderer::OnMouseScroll(float scroll)
@@ -399,13 +399,20 @@ void Renderer::OnMouseScroll(float scroll)
 
 void Renderer::OnMouseMove(WPARAM btnState, int x, int y)
 {
-	if (DragDetect(m_hMainWnd, { x, y }))
+	m_deltaMousePos = float4(0.0f);
+	if ((btnState & MK_LBUTTON) != 0)
 	{
 		m_deltaMousePos.x = x - m_currentMousePos.x;
 		m_deltaMousePos.y = y - m_currentMousePos.y;
-		m_currentMousePos.x = x;
-		m_currentMousePos.y = y;
 	}
+	else if ((btnState & MK_RBUTTON) != 0)
+	{
+		m_deltaMousePos.z = x - m_currentMousePos.x;
+		m_deltaMousePos.w = y - m_currentMousePos.y;
+	}
+			
+	m_currentMousePos.x = x;
+	m_currentMousePos.y = y;
 }
 
 void Renderer::CalculateFrameStats()

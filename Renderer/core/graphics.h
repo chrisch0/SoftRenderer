@@ -4,26 +4,26 @@
 
 struct VSInput
 {
-	vec3f position;
-	vec2f uv;
-	vec3f normal;
+	float3 position;
+	float2 uv;
+	float3 normal;
 	Color color;
 };
 
 struct PSInput
 {
-	vec4f sv_position;
-	vec3f normal;
-	vec3f positionWS;
-	vec2f uv;
-	vec4f color;
+	float4 sv_position;
+	float3 normal;
+	float3 positionWS;
+	float2 uv;
+	float4 color;
 };
 
 struct ConstantBuffer
 {
-	vec4f resolution;
-	vec2f time;
-	vec4f mouse;
+	float4 resolution;
+	float2 time;
+	float4 mouse;
 };
 
 using VSOut = PSInput;

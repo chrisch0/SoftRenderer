@@ -1,6 +1,5 @@
 #pragma once
 #include "math/math.h"
-#include <algorithm>
 
 namespace shader
 {

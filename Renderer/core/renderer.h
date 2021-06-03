@@ -57,7 +57,7 @@ private:
 	std::vector<uint32_t> m_indexBuffer;
 	FrameBuffer* m_frameBuffer;
 
-	vec2f m_lastLMouseClick;
-	vec2f m_currentMousePos;
-	vec2f m_deltaMousePos;
+	float2 m_lastLMouseClick;
+	float2 m_currentMousePos;
+	float4 m_deltaMousePos;
 };

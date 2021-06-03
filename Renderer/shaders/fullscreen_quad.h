@@ -5,7 +5,7 @@
 VSOut FullScreenQuadVS(VSInput* vsInput, void* cb)
 {
 	VSOut vsOut;
-	vsOut.sv_position = vec4f(vsInput->position, 1.0f);
+	vsOut.sv_position = float4(vsInput->position, 1.0f);
 	vsOut.normal = vsInput->normal;
 	vsOut.uv = vsInput->uv;
 	vsOut.positionWS = vsInput->position;
@@ -16,15 +16,15 @@ VSOut FullScreenQuadVS(VSInput* vsInput, void* cb)
 Color FullScreenQuadPS(PSInput* psInput, void* cb)
 {
 	ConstantBuffer* passCb = (ConstantBuffer*)cb;
-	vec2f uv = psInput->uv;
-	vec4f mouse = passCb->mouse / vec4f(passCb->resolution.x, passCb->resolution.y, passCb->resolution.x, passCb->resolution.y);
+	float2 uv = psInput->uv;
+	float4 mouse = passCb->mouse / float4(passCb->resolution.x, passCb->resolution.y, passCb->resolution.x, passCb->resolution.y);
 
-	vec3f col = 0.5f + 0.5f * cos(passCb->time.x + vec3f(uv.x, uv.y, uv.x) + vec3f(0, 2, 4));
-	//vec3f col = vec3f(uv, 0.f);
+	float3 col = 0.5f + 0.5f * Cos(passCb->time.x + float3(uv.x, uv.y, uv.x) + float3(0, 2, 4));
+	//float3 col = float3(uv, 0.f);
 	float ratio_aspect = passCb->resolution.x / passCb->resolution.y;
 	uv.x *= ratio_aspect;
 	mouse.x *= ratio_aspect;
 	mouse.z *= ratio_aspect;
-	col += shader::smoothstep(0.05f, 0.01f, (uv - vec2f(mouse.x, mouse.y)).Length());
+	col += shader::smoothstep(0.05f, 0.01f, (uv - float2(mouse.x, mouse.y)).Length());
 	return Color(col, 1.0f);
 }

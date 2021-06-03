@@ -1,4 +1,5 @@
 #pragma once
+#include "vec.h"
 
 class Mat4x4
 {
@@ -20,7 +21,7 @@ public:
 		float x20, float x21, float x22, float x23,
 		float x30, float x31, float x32, float x33
 		);
-	~Mat4x4();
+	~Mat4x4() {};
 
 	Mat4x4 operator*(const Mat4x4& rhs)
 	{
@@ -38,6 +39,9 @@ public:
 		}
 		return r;
 	}
+
+	void SetRow(int index, const float3& v, float w = 1.0);
+	void SetRow(int index, const float4& v);
 };
 
-using mat4 = Mat4x4;
+using float4x4 = Mat4x4;

@@ -4,24 +4,26 @@
 class Camera
 {
 public:
-	Camera(const vec3f& pos, const vec3f& target, float aspect);
+	Camera(const float3& pos, const float3& target, float aspect);
 	~Camera() {}
 
+	void SetFOV(float fovy);
 	void SetNear(float near);
 	void SetFar(float far);
 	void SetAspect(float aspect);
-	void SetPosition(const vec3f& pos);
-	void SetTarget(const vec3f& target);
-	const vec3f& GetPosition() const;
-	const vec3f& GetTarget() const;
-	void Update();
+	void SetPosition(const float3& pos);
+	void SetTarget(const float3& target);
+	const float3& GetPosition() const;
+	const float3& GetTarget() const;
+	void Update(const float4& deltaCursor);
+	void UpdateProjectionMatrix();
 
 private:
-	vec3f m_position;
-	vec3f m_target;
+	float3 m_position;
+	float3 m_target;
 	float m_near;
 	float m_far;
 	float m_fov;
 	float m_aspect;
-	vec3f m_up;
+	float3 m_up;
 };

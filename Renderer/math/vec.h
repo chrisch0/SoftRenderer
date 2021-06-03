@@ -87,9 +87,8 @@ public:
 	T Length() const { return std::sqrt(x * x + y * y); }
 };
 
-using vec2d = Vec2<double>;
-using vec2f = Vec2<float>;
-using vec2i = Vec2<int>;
+using float2 = Vec2<float>;
+using int2 = Vec2<int>;
 
 template <typename T>
 class Vec3
@@ -162,7 +161,7 @@ public:
 	double Length() const { return std::sqrt(LengthSquared()); }
 };
 
-using vec3f = Vec3<float>;
+using float3 = Vec3<float>;
 
 template <typename T>
 class Vec4
@@ -237,7 +236,7 @@ private:
 };
 
 using Color = Vec4<float>;
-using vec4f = Vec4<float>;
+using float4 = Vec4<float>;
 
 template <typename T>
 inline Vec2<T> operator*(const T& s, const Vec2<T>& rhs)
@@ -258,15 +257,24 @@ inline Vec3<T> operator+(const T& s, const Vec3<T>& rhs)
 }
 
 template <typename T>
-Vec3<T> normalize(const Vec3<T>& v)
+Vec3<T> Normalize(const Vec3<T>& v)
 {
 	return v / v.Length();
 }
 
 template <typename T>
-Vec3<T> cos(const Vec3<T>& v)
+Vec3<T> Cos(const Vec3<T>& v)
 {
 	return Vec3<T>(std::cos(v.x), std::cos(v.y), std::cos(v.z));
+}
+
+template <typename T>
+Vec3<T> Cross(const Vec3<T>& v1, const Vec3<T>& v2)
+{
+	double v1x = v1.x, v1y = v1.y, v1z = v1.z;
+	double v2x = v2.x, v2y = v2.y, v2z = v2.z;
+	return Vec3<T>((v1y * v2z) - (v1z * v2y), (v1z * v2x) - (v1x * v2z),
+		(v1x * v2y) - (v1y * v2x));
 }
 
 template <typename T>
