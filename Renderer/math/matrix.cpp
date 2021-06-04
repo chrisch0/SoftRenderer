@@ -32,10 +32,47 @@ Mat4x4::Mat4x4(
 
 void Mat4x4::SetRow(int index, const float3& v, float w /* = 1.0 */)
 {
-
+	m[index][0] = v.x;
+	m[index][1] = v.y;
+	m[index][2] = v.z;
+	m[index][3] = w;
 }
 
 void Mat4x4::SetRow(int index, const float4& v)
 {
+	m[index][0] = v.x;
+	m[index][1] = v.y;
+	m[index][2] = v.z;
+	m[index][3] = v.w;
+}
 
+void Mat4x4::SetCol(int index, const float3& v, float w /* = 1.0 */)
+{
+	m[0][index] = v.x;
+	m[1][index] = v.y;
+	m[2][index] = v.z;
+	m[3][index] = w;
+}
+
+void Mat4x4::SetCol(int index, const float4& v)
+{
+	m[0][index] = v.x;
+	m[1][index] = v.y;
+	m[2][index] = v.z;
+	m[3][index] = v.w;
+}
+
+float4 Mul(const float4& v, const float4x4& m)
+{
+	float4 x = float4(m.m[0][0], m.m[0][1], m.m[0][2], m.m[0][3]) * v.x;
+	float4 y = float4(m.m[1][0], m.m[1][1], m.m[1][2], m.m[1][3]) * v.y;
+	float4 z = float4(m.m[2][0], m.m[2][1], m.m[2][2], m.m[2][3]) * v.z;
+	float4 w = float4(m.m[3][0], m.m[3][1], m.m[3][2], m.m[3][3]) * v.w;
+	return x + y + z + w;
+}
+
+std::ostream& operator<<(std::ostream& os, const Mat4x4& m)
+{
+
+	return os;
 }

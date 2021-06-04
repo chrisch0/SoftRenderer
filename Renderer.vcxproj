@@ -152,6 +152,7 @@
     <ClInclude Include="Renderer\math\math.h" />
     <ClInclude Include="Renderer\math\matrix.h" />
     <ClInclude Include="Renderer\math\vec.h" />
+    <ClInclude Include="Renderer\shaders\cube.h" />
     <ClInclude Include="Renderer\shaders\fullscreen_quad.h" />
     <ClInclude Include="Renderer\utils\timer.h" />
   </ItemGroup>

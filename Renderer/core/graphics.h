@@ -24,6 +24,8 @@ struct ConstantBuffer
 	float4 resolution;
 	float2 time;
 	float4 mouse;
+	float4x4 viewMat;
+	float4x4 projMat;
 };
 
 using VSOut = PSInput;

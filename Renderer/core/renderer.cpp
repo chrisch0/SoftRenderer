@@ -15,13 +15,15 @@ LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 Renderer* Renderer::m_app = nullptr;
 
 Renderer::Renderer()
+	: m_camera(float3(1.0f, 0.0f, 0.0f), float3(0.0f, 0.0f, 0.0f), 1.0)
 {
 	assert(m_app == nullptr);
+	
 	m_app = this;
 }
 
 Renderer::Renderer(int width, int height) :
-	m_clientWidth(width), m_clientHeight(height)
+	m_clientWidth(width), m_clientHeight(height), m_camera(float3(1.0f, 0.0f, 0.0f), float3(0.0f, 0.0f, 0.0f), (float)width / (float)height)
 {
 	assert(m_app == nullptr);
 	m_app = this;
@@ -157,36 +159,147 @@ HDC Renderer::CreateFrameBuffer()
 
 void Renderer::InitScene()
 {
-	Vertex v;
-	v.position = float3(-1.f, -1.f, 0.f);
-	v.normal = float3(0.f, 0.f, -1.f);
-	v.uv = float2(0.f, 1.f);
-	v.color = float4(1.f, 0.f, 0.f, 1.f);
-	m_vertexBuffer.push_back(v);
-	v.position = float3(1.f, -1.f, 0.f);
-	v.uv = float2(1.f, 1.f);
-	m_vertexBuffer.push_back(v);
-	v.position = float3(-1.f, 1.f, 0.f);
-	v.uv = float2(0.f, 0.f);
-	m_vertexBuffer.push_back(v);
+	// full screen quad
+	/*
+	{
+		Vertex v;
+		v.position = float3(-1.f, -1.f, 0.f);
+		v.normal = float3(0.f, 0.f, -1.f);
+		v.uv = float2(0.f, 1.f);
+		v.color = float4(1.f, 0.f, 0.f, 1.f);
+		m_vertexBuffer.push_back(v);
+		v.position = float3(1.f, -1.f, 0.f);
+		v.uv = float2(1.f, 1.f);
+		m_vertexBuffer.push_back(v);
+		v.position = float3(-1.f, 1.f, 0.f);
+		v.uv = float2(0.f, 0.f);
+		m_vertexBuffer.push_back(v);
 
-	v.position = float3(1.f, 1.f, 0.f);
-	v.uv = float2(1.f, 0.f);
-	v.color = float4(0.f, 0.f, 0.f, 0.f);
-	m_vertexBuffer.push_back(v);
-	v.position = float3(1.f, -1.f, 0.f);
-	v.uv = float2(1.f, 1.f);
-	m_vertexBuffer.push_back(v);
-	v.position = float3(-1.f, 1.f, 0.f);
-	v.uv = float2(0.f, 0.f);
-	m_vertexBuffer.push_back(v);
+		v.position = float3(1.f, 1.f, 0.f);
+		v.uv = float2(1.f, 0.f);
+		v.color = float4(0.f, 0.f, 0.f, 0.f);
+		m_vertexBuffer.push_back(v);
+		v.position = float3(1.f, -1.f, 0.f);
+		v.uv = float2(1.f, 1.f);
+		m_vertexBuffer.push_back(v);
+		v.position = float3(-1.f, 1.f, 0.f);
+		v.uv = float2(0.f, 0.f);
+		m_vertexBuffer.push_back(v);
 
-	m_indexBuffer.push_back(0);
-	m_indexBuffer.push_back(1);
-	m_indexBuffer.push_back(2);
-	m_indexBuffer.push_back(4);
-	m_indexBuffer.push_back(3);
-	m_indexBuffer.push_back(5);
+		m_indexBuffer.push_back(0);
+		m_indexBuffer.push_back(1);
+		m_indexBuffer.push_back(2);
+		m_indexBuffer.push_back(4);
+		m_indexBuffer.push_back(3);
+		m_indexBuffer.push_back(5);
+	}
+	*/
+
+	// cube
+	{
+		Vertex v;
+		v.position = float3( -0.5f, -0.5f, -0.5f );
+		v.normal = float3( 0.0f, 0.0f, -1.0f );
+		v.uv = float2( 0.0f, 1.0f );
+		v.color = float4( 1.0f, 0.0f, 0.0f, 1.0f );
+		m_vertexBuffer.push_back(v);
+		v.position = float3( -0.5f, +0.5f, -0.5f );
+		v.uv = float2( 0.0f, 0.0f );
+		m_vertexBuffer.push_back(v);
+		v.position = float3( +0.5f, +0.5f, -0.5f );
+		v.uv = float2( 1.0f, 0.0f );
+		m_vertexBuffer.push_back(v);
+		v.position = float3( +0.5f, -0.5f, -0.5f );
+		v.uv = float2( 1.0f, 1.0f );
+		m_vertexBuffer.push_back(v);
+
+		v.position = float3( -0.5f, -0.5f, +0.5f );
+		v.normal = float3( 0.0f, 0.0f, 1.0f );
+		v.uv = float2( 1.0f, 1.0f );
+		v.color = float4( 0.0f, 1.0f, 0.0f, 1.0f );
+		m_vertexBuffer.push_back(v);
+		v.position = float3( +0.5f, -0.5f, +0.5f );
+		v.uv = float2( 0.0f, 1.0f );
+		m_vertexBuffer.push_back(v);
+		v.position = float3( +0.5f, +0.5f, +0.5f );
+		v.uv = float2( 0.0f, 0.0f );
+		m_vertexBuffer.push_back(v);
+		v.position = float3( -0.5f, +0.5f, +0.5f );
+		v.uv = float2( 1.0f, 0.0f );
+		m_vertexBuffer.push_back(v);
+
+		v.position = float3( -0.5f, +0.5f, -0.5f );
+		v.normal = float3( 0.0f, 1.0f, 0.0f );
+		v.uv = float2( 0.0f, 1.0f );
+		v.color = float4( 0.0f, 0.0f, 1.0f, 1.0f );
+		m_vertexBuffer.push_back(v);
+		v.position = float3( -0.5f, +0.5f, +0.5f );
+		v.uv = float2( 0.0f, 0.0f );
+		m_vertexBuffer.push_back(v);
+		v.position = float3( +0.5f, +0.5f, +0.5f );
+		v.uv = float2( 1.0f, 0.0f );
+		m_vertexBuffer.push_back(v);
+		v.position = float3( +0.5f, +0.5f, -0.5f );
+		v.uv = float2( 1.0f, 1.0f );
+		m_vertexBuffer.push_back(v);
+
+		v.position = float3( -0.5f, -0.5f, -0.5f );
+		v.normal = float3( 0.0f, -1.0f, 0.0f );
+		v.uv = float2( 1.0f, 1.0f );
+		v.color = float4( 1.0f, 1.0f, 0.0f, 1.0f );
+		m_vertexBuffer.push_back(v);
+		v.position = float3( +0.5f, -0.5f, -0.5f );
+		v.uv = float2( 0.0f, 1.0f );
+		m_vertexBuffer.push_back(v);
+		v.position = float3( +0.5f, -0.5f, +0.5f );
+		v.uv = float2( 0.0f, 0.0f );
+		m_vertexBuffer.push_back(v);
+		v.position = float3( -0.5f, -0.5f, +0.5f );
+		v.uv = float2( 1.0f, 0.0f );
+		m_vertexBuffer.push_back(v);
+
+		v.position = float3( -0.5f, -0.5f, +0.5f );
+		v.normal = float3( -1.0f, 0.0f, 0.0f );
+		v.uv = float2( 0.0f, 1.0f );
+		v.color = float4( 0.0f, 1.0f, 1.0f, 1.0f );
+		m_vertexBuffer.push_back(v);
+		v.position = float3( -0.5f, +0.5f, +0.5f );
+		v.uv = float2( 0.0f, 0.0f );
+		m_vertexBuffer.push_back(v);
+		v.position = float3( -0.5f, +0.5f, -0.5f );
+		v.uv = float2( 1.0f, 0.0f );
+		m_vertexBuffer.push_back(v);
+		v.position = float3( -0.5f, -0.5f, -0.5f );
+		v.uv = float2( 1.0f, 1.0f );
+		m_vertexBuffer.push_back(v);
+
+
+		v.position = float3( +0.5f, -0.5f, -0.5f );
+		v.normal = float3( 1.0f, 0.0f, 0.0f );
+		v.uv = float2( 0.0f, 1.0f );
+		v.color = float4( 1.0f, 1.0f, 1.0f, 1.0f );
+		m_vertexBuffer.push_back(v);
+		v.position = float3( +0.5f, +0.5f, -0.5f );
+		v.uv = float2(0.0f, 0.0);
+		m_vertexBuffer.push_back(v);
+		v.position = float3( +0.5f, +0.5f, +0.5f );
+		v.uv = float2(1.0f, 0.0);
+		m_vertexBuffer.push_back(v);
+		v.position = float3( +0.5f, -0.5f, +0.5f );
+		v.uv = float2(1.0f, 1.0);
+		m_vertexBuffer.push_back(v);
+
+		m_indexBuffer = {
+			0, 1, 2, 0, 2, 3,
+			4, 5, 6, 4, 6, 7,
+			8, 9, 10, 8, 10, 11,
+			12, 13, 14, 12, 14, 15,
+			16, 17, 18, 16, 18, 19,
+			20, 21, 22, 20, 22, 23
+		};
+
+		m_camera.SetPosition(float3(1.f, 0.f, 0.f));
+	}
 }
 
 void Renderer::Update(const Timer& timer)
@@ -194,10 +307,25 @@ void Renderer::Update(const Timer& timer)
 	m_passCB.resolution = float4(m_frameBuffer->GetWidth(), m_frameBuffer->GetHeight(), 1.f / m_frameBuffer->GetWidth(), 1.f / m_frameBuffer->GetHeight());
 	m_passCB.mouse = float4(m_currentMousePos.x, m_currentMousePos.y, m_lastLMouseClick.x, m_lastLMouseClick.y);
 	m_passCB.time = float2(timer.TotalTime(), timer.DeltaTime());
+	/*{
+		static float theta = 0.0f;
+		theta += PI * timer.DeltaTime();
+		float3 pos = m_camera.GetPosition();
+		pos.x = 1.f * std::cos(theta);
+		pos.y = 1.f * std::sin(theta);
+		m_camera.SetPosition(pos);
+		m_camera.UpdateViewMatrix();
+	}*/
+	m_camera.Update(m_deltaMousePos / m_clientHeight);
+	m_passCB.viewMat = m_camera.GetViewMatrix();
+	m_passCB.projMat = m_camera.GetProjectionMatrix();
+	//std::cout << m_deltaMousePos;
 }
 
 void Renderer::Render(const Timer& timer)
 {
+	m_frameBuffer->Clear(Color(0.0, 0.0, 0.0, 1.0));
+
 	int num_faces = m_indexBuffer.size() / 3;
 	for (int i = 0; i < num_faces; ++i)
 	{
@@ -205,7 +333,7 @@ void Renderer::Render(const Timer& timer)
 		for (int j = 0; j < 3; ++j)
 		{
 			VSInput* vs_input = &m_vertexBuffer[m_indexBuffer[i * 3 + j]];
-			inVertexAttri[j] = m_pipelineState.vertexShader(vs_input, nullptr);
+			inVertexAttri[j] = m_pipelineState.vertexShader(vs_input, &m_passCB);
 		}
 
 		// TODO: triangle clipping
@@ -243,7 +371,7 @@ void Renderer::Render(const Timer& timer)
 		}
 		
 		// TODO: build bounding box
-#pragma omp parallel for schedule(dynamic)
+//#pragma omp parallel for schedule(dynamic)
 		for (int x = 0; x < m_frameBuffer->GetWidth(); ++x)
 		{
 			for (int y = 0; y < m_frameBuffer->GetHeight(); ++y)

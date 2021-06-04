@@ -7,6 +7,7 @@
 #include "frame_buffer.h"
 #include "graphics.h"
 #include "utils/timer.h"
+#include "camera.h"
 
 class Renderer
 {
@@ -60,4 +61,6 @@ private:
 	float2 m_lastLMouseClick;
 	float2 m_currentMousePos;
 	float4 m_deltaMousePos;
+
+	Camera m_camera;
 };

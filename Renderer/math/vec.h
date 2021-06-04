@@ -2,6 +2,7 @@
 #include <initializer_list>
 #include <cmath>
 #include <ostream>
+//#include <cassert>
 
 template <typename T>
 class Vec3;
@@ -29,12 +30,19 @@ public:
 		return *this;
 	}
 
-	Vec2<T>& operator=(const std::initializer_list<T>& il)
-	{
-		assert(il.size() >= 2);
-		x = il[0]; y = il[1];
-		return *this;
-	}
+	//Vec2<T>& operator=(const std::initializer_list<T>& il)
+	//{
+	//	//std::assert(il.size() >= 2);
+	//	x = il[0]; y = il[1];
+	//	return *this;
+	//}
+
+	//Vec2<T>& operator=(const std::initializer_list<double>& il)
+	//{
+	//	//std::assert(il.size() >= 2);
+	//	x = il[0]; y = il[1];
+	//	return *this;
+	//}
 
 	Vec2<T> operator+(const Vec2<T>& rhs) const
 	{
@@ -108,12 +116,19 @@ public:
 		return *this;
 	}
 
-	Vec3<T>& operator=(const std::initializer_list<T>& il)
-	{
-		assert(il.size() >= 3);
-		x = il[0]; y = il[1]; z = il[2];
-		return *this;
-	}
+	//Vec3<T>& operator=(const std::initializer_list<T>& il)
+	//{
+	//	//std::assert(il.size() >= 3);
+	//	x = il[0]; y = il[1]; z = il[2];
+	//	return *this;
+	//}
+
+	//Vec3<T>& operator=(const std::initializer_list<double>& il)
+	//{
+	//	//std::assert(il.size() >= 3);
+	//	x = il[0]; y = il[1]; z = il[2];
+	//	return *this;
+	//}
 
 	Vec3<T> operator+(const Vec3<T>& rhs) const
 	{
@@ -180,12 +195,22 @@ public:
 		return *this;
 	}
 
-	Vec4<T>& operator=(const std::initializer_list<T>& il)
-	{
-		assert(il.size() >= 4);
-		x = il[0]; y = il[1]; z = il[2]; w = il[3];
-		return *this;
-	}
+	//Vec4<T>& operator=(const std::initializer_list<T>& il)
+	//{
+	//	//std::assert(il.size() >= 4);
+	//	for (int i = 0, auto it = il.begin(); i < 4 && it != il.end(); ++i, ++it)
+	//	{
+
+	//	}
+	//	return *this;
+	//}
+
+	//Vec4<T>& operator=(const std::initializer_list<double>& il)
+	//{
+	//	//std::assert(il.size() >= 4);
+	//	x = il[0]; y = il[1]; z = il[2]; w = il[3];
+	//	return *this;
+	//}
 
 	Vec4<T> operator+(const Vec4<T>& rhs) const
 	{

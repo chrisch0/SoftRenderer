@@ -81,5 +81,8 @@
     <ClInclude Include="Renderer\math\functions.h">
       <Filter>math</Filter>
     </ClInclude>
+    <ClInclude Include="Renderer\shaders\cube.h">
+      <Filter>shaders</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

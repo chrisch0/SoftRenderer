@@ -1,4 +1,5 @@
 #include "camera.h"
+#include <iostream>
 
 Camera::Camera(const float3& pos, const float3& target, float aspect)
 	: m_position(pos), m_target(target), m_aspect(aspect)
@@ -7,6 +8,9 @@ Camera::Camera(const float3& pos, const float3& target, float aspect)
 	m_up = float3(0.f, 1.f, 0.f);
 	m_near = 0.01f;
 	m_far = 10000.f;
+
+	UpdateViewMatrix();
+	UpdateProjectionMatrix();
 }
 
 void Camera::SetFOV(float fovy)
@@ -27,6 +31,7 @@ void Camera::SetFar(float far)
 	UpdateProjectionMatrix();
 }
 
+// width / height
 void Camera::SetAspect(float aspect)
 {
 	m_aspect = aspect;
@@ -43,50 +48,82 @@ void Camera::SetTarget(const float3& target)
 	m_target = target;
 }
 
-const float3& Camera::GetPosition() const
+float3 Camera::GetPosition() const
 {
 	return m_position;
 }
 
-const float3& Camera::GetTarget() const
+float3 Camera::GetTarget() const
 {
 	return m_target;
 }
 
-void Camera::Update(const float4& deltaCursor)
+float4x4 Camera::GetViewMatrix() const
 {
-	float3 look_at = m_target - m_position;
-	float3 forward = Normalize(look_at);
-	float3 right = Cross(float3(0.f, 1.f, 0.f), forward);
-	m_up = Cross(forward, right);
+	return m_viewMatrix;
+}
 
+float4x4 Camera::GetProjectionMatrix() const
+{
+	return m_projMatrix;
+}
+
+void Camera::Update(const float4& delta)
+{
 	// update pan
+	float3 look_at = m_target - m_position;
 	float distance = look_at.Length();
 	float factor = distance * (float)std::tan(m_fov * 0.5) * 2.f;
-	float3 delta_x = right * deltaCursor.x * factor;
-	float3 delta_y = m_up * deltaCursor.y * factor;
-	m_target = m_target + delta_x + delta_y;
+	float3 delta_x = m_right * delta.z * factor;
+	float3 delta_y = m_up * delta.w * factor;
 
 	// update orbit
-	float theta = (float)std::atan2(-forward.x, -forward.z);
-	float phi = (float)std::acos(-forward.y / distance);
+	float theta = (float)std::atan2(-look_at.x, -look_at.z);
+	float phi = (float)std::acos(-look_at.y / distance);
 	factor = PI * 2.f;
 
-	theta -= deltaCursor.x * factor;
-	phi -= deltaCursor.y * factor;
+	theta -= delta.x * factor;
+	phi -= delta.y * factor;
 	phi = std::clamp<float>(phi, -std::numeric_limits<float>::epsilon(), PI + std::numeric_limits<float>::epsilon());
 	float3 offset = float3(
 		distance * (float)std::sin(phi) * (float)std::sin(theta),
 		distance * (float)std::cos(phi),
 		distance * (float)std::sin(phi) * (float)std::cos(theta));
-	m_position += offset;
 
+	m_target = m_target + delta_x + delta_y;
+	m_position = m_target + offset;
+
+	std::cout << theta << " " << phi << "\n";
 	// update view matrix
+	UpdateViewMatrix();
+}
 
+void Camera::UpdateViewMatrix()
+{
+	float3 look_at = m_target - m_position;
+	m_forward = Normalize(look_at);
+	m_right = Cross(float3(0.f, 1.f, 0.f), m_forward);
+	m_up = Cross(m_forward, m_right);
+
+	float x30 = -(m_position * m_right);
+	float x31 = -(m_position * m_up);
+	float x32 = -(m_position * m_forward);
+	m_viewMatrix.SetCol(0, m_right, x30);
+	m_viewMatrix.SetCol(1, m_up, x31);
+	m_viewMatrix.SetCol(2, m_forward, x32);
 
 }
 
-void Camera::UpdateProjectionMatrix()
+void Camera::UpdateProjectionMatrix() 
 {
-
+	float Y = 1.f / std::tan(m_fov * 0.5);
+	float X = Y / m_aspect;
+	float Z = m_near / (m_near - m_far);
+	float W = -m_near * m_far / (m_near - m_far);
+	m_projMatrix.m[0][0] = X;
+	m_projMatrix.m[1][1] = Y;
+	m_projMatrix.m[2][2] = Z;
+	m_projMatrix.m[2][3] = 1.f;
+	m_projMatrix.m[3][2] = W;
+	m_projMatrix.m[3][3] = 0.f;
 }

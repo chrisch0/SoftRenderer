@@ -78,5 +78,12 @@ void FrameBuffer::SetBuffer(unsigned char* buffer)
 
 void FrameBuffer::Clear(Color color)
 {
-	//std::memset(m_buffer, )
+#pragma omp parallel for schedule(dynamic)
+	for (int x = 0; x < m_width; ++x)
+	{
+		for (int y = 0; y < m_height; ++y)
+		{
+			SetColorBGR(x, y, color);
+		}
+	}
 }

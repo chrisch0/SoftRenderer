@@ -13,9 +13,12 @@ public:
 	void SetAspect(float aspect);
 	void SetPosition(const float3& pos);
 	void SetTarget(const float3& target);
-	const float3& GetPosition() const;
-	const float3& GetTarget() const;
+	float3 GetPosition() const;
+	float3 GetTarget() const;
+	float4x4 GetViewMatrix() const;
+	float4x4 GetProjectionMatrix() const;
 	void Update(const float4& deltaCursor);
+	void UpdateViewMatrix();
 	void UpdateProjectionMatrix();
 
 private:
@@ -26,4 +29,8 @@ private:
 	float m_fov;
 	float m_aspect;
 	float3 m_up;
+	float3 m_forward;
+	float3 m_right;
+	float4x4 m_viewMatrix;
+	float4x4 m_projMatrix;
 };

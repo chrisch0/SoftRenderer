@@ -1,6 +1,7 @@
 #pragma once
 #include "vec.h"
 
+// row major
 class Mat4x4
 {
 public:
@@ -42,6 +43,12 @@ public:
 
 	void SetRow(int index, const float3& v, float w = 1.0);
 	void SetRow(int index, const float4& v);
+	void SetCol(int index, const float3& v, float w = 1.0);
+	void SetCol(int index, const float4& v);
 };
 
 using float4x4 = Mat4x4;
+
+float4 Mul(const float4& v, const float4x4& m);
+
+std::ostream& operator<<(std::ostream& os, const Mat4x4& m);
