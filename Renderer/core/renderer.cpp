@@ -43,14 +43,23 @@ bool Renderer::Initialize(VertexShader vs, PixelShader ps)
 {
 	if (!InitMainWindow())
 		return false;
-	m_memoryDC = CreateFrameBuffer();
+	//m_memoryDC = CreateFrameBuffer();
 
-	m_pipelineState.vertexShader = vs;
-	m_pipelineState.pixelShader = ps;
+	m_pipelineState.VS = vs;
+	m_pipelineState.PS = ps;
+	InitPipelineState();
 
 	omp_set_num_threads(std::thread::hardware_concurrency());
 
 	return true;
+}
+
+void Renderer::InitPipelineState()
+{
+	RasterizerDesc& rs_desc = m_pipelineState.RasterizerState;
+	rs_desc.CullMode = Cull_Mode_Back;
+	rs_desc.FrontCounterClockWise = true;
+
 }
 
 void Renderer::MainLoop()
@@ -132,7 +141,10 @@ HDC Renderer::CreateFrameBuffer()
 	HDC memory_dc;
 	HBITMAP dib_bitmap;
 	HBITMAP old_bitmap;
-	unsigned char *buffer;
+	unsigned char *buffer = nullptr;
+
+	DeleteObject(m_curBitmap);
+	DeleteDC(m_memoryDC);
 
 	window_dc = GetDC(m_hMainWnd);
 	memory_dc = CreateCompatibleDC(window_dc);
@@ -150,8 +162,15 @@ HDC Renderer::CreateFrameBuffer()
 	assert(dib_bitmap != NULL);
 	old_bitmap = (HBITMAP)SelectObject(memory_dc, dib_bitmap);
 	DeleteObject(old_bitmap);
+	m_curBitmap = dib_bitmap;
 
-	m_frameBuffer = new FrameBuffer((int)m_clientWidth, (int)m_clientHeight);
+	if (m_frameBuffer == nullptr)
+		m_frameBuffer = new FrameBuffer((int)m_clientWidth, (int)m_clientHeight);
+	else
+	{
+		m_frameBuffer->SetWidth(m_clientWidth);
+		m_frameBuffer->SetHeight(m_clientHeight);
+	}
 	m_frameBuffer->SetBuffer(buffer);
 
 	return memory_dc;
@@ -300,31 +319,51 @@ void Renderer::InitScene()
 
 		m_camera.SetPosition(float3(1.f, 0.f, 0.f));
 	}
+
+	// triangle
+	/*{
+		Vertex v;
+		v.position = float3(-0.5f, 0.f, 0.f);
+		v.color = float4(1.f, 1.f, 1.f, 1.f);
+		v.uv = float2(1.f, 0.f);
+		v.normal = float3(0.f, 0.f, 1.f);
+		m_vertexBuffer.push_back(v);
+		v.position = float3(0.f, 0.5f, 0.f);
+		v.uv = float2(0.f, 0.f);
+		m_vertexBuffer.push_back(v);
+		v.position = float3(0.5f, 0.f, 0.f);
+		v.uv = float2(0.f, 1.f);
+		m_vertexBuffer.push_back(v);
+		m_indexBuffer = { 0, 1, 2 };
+		m_camera.SetPosition(float3(0.3, -0.25f, -0.3));
+		m_camera.SetTarget(float3(0.f, 0.25f, 0.f));
+	}*/
 }
 
 void Renderer::Update(const Timer& timer)
 {
-	m_passCB.resolution = float4(m_frameBuffer->GetWidth(), m_frameBuffer->GetHeight(), 1.f / m_frameBuffer->GetWidth(), 1.f / m_frameBuffer->GetHeight());
-	m_passCB.mouse = float4(m_currentMousePos.x, m_currentMousePos.y, m_lastLMouseClick.x, m_lastLMouseClick.y);
-	m_passCB.time = float2(timer.TotalTime(), timer.DeltaTime());
+	m_passCB.Resolution = float4(m_frameBuffer->GetWidth(), m_frameBuffer->GetHeight(), 1.f / m_frameBuffer->GetWidth(), 1.f / m_frameBuffer->GetHeight());
+	m_passCB.Mouse = float4(m_currentMousePos.x, m_currentMousePos.y, m_lastLMouseClick.x, m_lastLMouseClick.y);
+	m_passCB.Time = float2(timer.TotalTime(), timer.DeltaTime());
 	/*{
 		static float theta = 0.0f;
 		theta += PI * timer.DeltaTime();
 		float3 pos = m_camera.GetPosition();
-		pos.x = 1.f * std::cos(theta);
-		pos.y = 1.f * std::sin(theta);
+		pos.x = 0.25f * std::sin(theta);
+		pos.z = -0.25f * std::cos(theta);
 		m_camera.SetPosition(pos);
 		m_camera.UpdateViewMatrix();
 	}*/
-	m_camera.Update(m_deltaMousePos / m_clientHeight);
-	m_passCB.viewMat = m_camera.GetViewMatrix();
-	m_passCB.projMat = m_camera.GetProjectionMatrix();
+	float4 delta_pos = float4(m_deltaMousePos.x / m_clientWidth, m_deltaMousePos.y / m_clientHeight, m_deltaMousePos.z / m_clientWidth, m_deltaMousePos.w / m_clientHeight);
+	m_camera.Update(delta_pos * 0.5f, m_deltaScroll);
+	m_passCB.ViewMat = m_camera.GetViewMatrix();
+	m_passCB.ProjMat = m_camera.GetProjectionMatrix();
 	//std::cout << m_deltaMousePos;
 }
 
 void Renderer::Render(const Timer& timer)
 {
-	m_frameBuffer->Clear(Color(0.0, 0.0, 0.0, 1.0));
+	m_frameBuffer->Clear(Color(0.2, 0.2, 0.2, 1.0));
 
 	int num_faces = m_indexBuffer.size() / 3;
 	for (int i = 0; i < num_faces; ++i)
@@ -333,7 +372,7 @@ void Renderer::Render(const Timer& timer)
 		for (int j = 0; j < 3; ++j)
 		{
 			VSInput* vs_input = &m_vertexBuffer[m_indexBuffer[i * 3 + j]];
-			inVertexAttri[j] = m_pipelineState.vertexShader(vs_input, &m_passCB);
+			inVertexAttri[j] = m_pipelineState.VS(vs_input, &m_passCB);
 		}
 
 		// TODO: triangle clipping
@@ -351,26 +390,40 @@ void Renderer::Render(const Timer& timer)
 		{
 			recip_w[j] = 1.f / outVertexAttri[j].sv_position.w;
 			outVertexAttri[j].sv_position = outVertexAttri[j].sv_position / outVertexAttri[j].sv_position.w;
-			//ndc_coords[j] = outVertexAttri[j].sv_position;
+			ndc_coords[j] = outVertexAttri[j].sv_position;
 		}
 
-		// TODO: back-face culling
+		// face culling
+		if (m_pipelineState.RasterizerState.CullMode != Cull_Mode_None)
+		{
+			
+			auto v0 = ndc_coords[0];
+			auto v1 = ndc_coords[1];
+			auto v2 = ndc_coords[2];
+			float r = v0 * Cross(v1 - v0, v2 - v0);
+			// front ccw
+			bool is_back_face = !(r >= 0 ^ m_pipelineState.RasterizerState.FrontCounterClockWise);
+			bool is_culling = !(m_pipelineState.RasterizerState.CullMode == Cull_Mode_Back ^ is_back_face);
+			if (is_culling)
+				continue;
+		}
 
-		// TODO: viewport mapping
+		// viewport mapping
 		static float2 screen_coords[3];
 		static float screen_depth[3];
 		for (int j = 0; j < 3; ++j)
 		{
 			float3 ndc_coord = outVertexAttri[j].sv_position;
-			float x = (ndc_coord.x + 1.f) * 0.5f * (float)m_frameBuffer->GetWidth() + 0.0f; // + topleftX
-			float y = (1.f - ndc_coord.y) * 0.5f * (float)m_frameBuffer->GetHeight() + 0.0f; // + topleftY
-			float z = 0.0f + ndc_coord.z * (1.0 - 0.0); // minDepth + z * (maxDepth - minDepth)
+			float x = (ndc_coord.x + 1.f) * 0.5f * (float)m_frameBuffer->GetWidth() + m_viewport.TopLeftX;
+			float y = (1.f - ndc_coord.y) * 0.5f * (float)m_frameBuffer->GetHeight() + m_viewport.TopLeftY;
+			float z = m_viewport.MinDepth + ndc_coord.z * (m_viewport.MaxDepth - m_viewport.MinDepth);
 			outVertexAttri[j].sv_position = float4(x, y, z, 1.0f);
 			screen_coords[j] = float2(x, y);
 			screen_depth[j] = z;
 		}
 		
 		// TODO: build bounding box
+		// TODO: add wire frame rasterizer mode
 //#pragma omp parallel for schedule(dynamic)
 		for (int x = 0; x < m_frameBuffer->GetWidth(); ++x)
 		{
@@ -382,13 +435,6 @@ void Renderer::Render(const Timer& timer)
 					float2 a = screen_coords[0];
 					float2 b = screen_coords[1];
 					float2 c = screen_coords[2];
-					/*float2 ab = b - a;
-					float2 ac = c - a;
-					float2 ap = point - a;
-					float factor = 1.f / (ab.x * ac.y - ab.y * ac.x);
-					float s = (ac.y * ap.x - ac.x * ap.y) * factor;
-					float t = (ab.x * ap.y - ab.y * ap.x) * factor;
-					weights = float3(1 - s - t, s, t);*/
 					float2 bp = point - b;
 					float2 bc = c - b;
 					float2 ba = a - b;
@@ -426,16 +472,15 @@ void Renderer::Render(const Timer& timer)
 							r[j] = attri;
 						}
 					}
-					Color pixel_color = m_pipelineState.pixelShader(&pixel_attri, &m_passCB);
+					Color pixel_color = m_pipelineState.PS(&pixel_attri, &m_passCB);
 					m_frameBuffer->SetColorBGR(x, y, pixel_color);
-				}
-				else
-				{
-					//m_frameBuffer->SetColorBGR(x, y, Color(1.f, 1.f, 1.0f, 1.0f));
 				}
 			}
 		}
 	}
+
+	m_deltaScroll = 0.0f;
+	m_deltaMousePos = float4(0.f, 0.f, 0.f, 0.f);
 }
 
 LRESULT Renderer::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -447,6 +492,7 @@ LRESULT Renderer::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		{
 			m_clientHeight = HIWORD(lParam);
 			m_clientWidth = LOWORD(lParam);
+			OnResize();
 		}
 		return 0;
 	case WM_ACTIVATE:
@@ -493,7 +539,18 @@ LRESULT Renderer::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 void Renderer::OnResize()
 {
-
+	DeleteDC(m_memoryDC);
+	/*if (m_frameBuffer && m_frameBuffer->GetBuffer() != nullptr)
+		delete m_frameBuffer->GetBuffer();*/
+	//if (m_frameBuffer != nullptr)
+		//delete m_frameBuffer;
+	m_memoryDC = CreateFrameBuffer();
+	m_viewport.TopLeftX = 0.0f;
+	m_viewport.TopLeftY = 0.0f;
+	m_viewport.Width = (float)m_clientWidth;
+	m_viewport.Height = (float)m_clientHeight;
+	m_viewport.MinDepth = 0.0f;
+	m_viewport.MaxDepth = 1.0f;
 }
 
 void Renderer::OnKeyDown(WPARAM key)
@@ -522,21 +579,21 @@ void Renderer::OnMouseUp(button_t button, int x, int y)
 
 void Renderer::OnMouseScroll(float scroll)
 {
-
+	m_deltaScroll += scroll;
 }
 
 void Renderer::OnMouseMove(WPARAM btnState, int x, int y)
 {
-	m_deltaMousePos = float4(0.0f);
+	//m_deltaMousePos = float4(0.0f);
 	if ((btnState & MK_LBUTTON) != 0)
 	{
-		m_deltaMousePos.x = x - m_currentMousePos.x;
-		m_deltaMousePos.y = y - m_currentMousePos.y;
+		m_deltaMousePos.x += (x - m_currentMousePos.x);
+		m_deltaMousePos.y += (y - m_currentMousePos.y);
 	}
 	else if ((btnState & MK_RBUTTON) != 0)
 	{
-		m_deltaMousePos.z = x - m_currentMousePos.x;
-		m_deltaMousePos.w = y - m_currentMousePos.y;
+		m_deltaMousePos.z += (x - m_currentMousePos.x);
+		m_deltaMousePos.w += (y - m_currentMousePos.y);
 	}
 			
 	m_currentMousePos.x = x;

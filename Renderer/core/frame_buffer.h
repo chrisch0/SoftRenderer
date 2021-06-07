@@ -10,10 +10,12 @@ public:
 	FrameBuffer(const FrameBuffer&);
 	FrameBuffer& operator=(const FrameBuffer& rhs);
 
-	unsigned char* GetBuffer() const { return m_buffer; }
+	unsigned char* GetBuffer() { return m_buffer; }
 	const int GetWidth() const { return m_width; }
 	const int GetHeight() const { return m_height; }
 	const size_t GetBufferSize() const { return m_bufferSize; }
+	void SetWidth(int width) { m_width = width; }
+	void SetHeight(int height) { m_height = height; }
 
 	void SetColorRGB(int x, int y, Color color);
 	void SetColorBGR(int x, int y, Color color);
@@ -25,7 +27,7 @@ protected:
 	int m_height;
 	int m_channels;
 	size_t m_bufferSize;
-	unsigned char* m_buffer;
+	unsigned char* m_buffer = nullptr;
 };
 
 struct DepthBuffer : public FrameBuffer

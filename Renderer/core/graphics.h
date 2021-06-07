@@ -21,11 +21,11 @@ struct PSInput
 
 struct ConstantBuffer
 {
-	float4 resolution;
-	float2 time;
-	float4 mouse;
-	float4x4 viewMat;
-	float4x4 projMat;
+	float4 Resolution;
+	float2 Time;
+	float4 Mouse;
+	float4x4 ViewMat;
+	float4x4 ProjMat;
 };
 
 using VSOut = PSInput;
@@ -36,23 +36,39 @@ using PixelShader = std::function<Color(PSInput*, void*)>;
 
 struct Viewport
 {
-	float topLeftX;
-	float topLeftY;
-	float width;
-	float height;
-	float minDepth;
-	float maxDepth;
+	float TopLeftX;
+	float TopLeftY;
+	float Width;
+	float Height;
+	float MinDepth;
+	float MaxDepth;
 };
 
-struct RasterizerState
+enum eFillMode
 {
+	Fill_Mode_Wireframe,
+	Fill_Mode_Solid
+};
 
+enum eCullMode
+{
+	Cull_Mode_None,
+	Cull_Mode_Front,
+	Cull_Mode_Back
+};
+
+struct RasterizerDesc
+{
+	eFillMode FillMode;
+	eCullMode CullMode;
+	bool FrontCounterClockWise;
 };
 
 struct PipelineState
 {
-	VertexShader vertexShader;
-	PixelShader pixelShader;
+	VertexShader VS;
+	PixelShader PS;
+	RasterizerDesc RasterizerState;
 	
 	// for clipping
 	//VSOut inVertexAttribute[10];

@@ -28,11 +28,13 @@ private:
 	static Renderer* m_app;
 	HWND m_hMainWnd = nullptr;
 	HDC m_memoryDC;
+	HBITMAP m_curBitmap;
 	std::wstring m_mainWndCaption = L"Soft Renderer";
 	double m_clientWidth = 800;
 	double m_clientHeight = 600;
 
 	bool InitMainWindow();
+	void InitPipelineState();
 	HDC CreateFrameBuffer();
 
 	void Update(const Timer& timer);
@@ -49,6 +51,7 @@ private:
 	void OnMouseMove(WPARAM btnState, int x, int y);
 	
 	PipelineState m_pipelineState;
+	Viewport m_viewport;
 
 	VSOut inVertexAttri[10];
 	PSInput outVertexAttri[10];
@@ -61,6 +64,7 @@ private:
 	float2 m_lastLMouseClick;
 	float2 m_currentMousePos;
 	float4 m_deltaMousePos;
+	float m_deltaScroll;
 
 	Camera m_camera;
 };

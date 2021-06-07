@@ -6,26 +6,26 @@
 #include "frame_buffer.h"
 
 FrameBuffer::FrameBuffer(int width, int height, int channels) :
-	m_width(width), m_height(height), m_channels(channels)
+	m_width(width), m_height(height), m_channels(channels), m_buffer(nullptr)
 {
 	assert(m_width > 0 && m_height > 0);
 	m_bufferSize = m_width * m_height * m_channels;
 
-	try
-	{
-		m_buffer = new unsigned char[m_bufferSize]();
-		//std::memset(m_buffer, 0, m_bufferSize);
-	}
-	catch (const std::bad_alloc& e)
-	{
-		std::string msg = "Bad allocate!\nImage buffer allocate fail!\n" + std::string(e.what());
-		std::cerr << msg << std::endl;
-	}
+	//try
+	//{
+	//	m_buffer = new unsigned char[m_bufferSize]();
+	//	//std::memset(m_buffer, 0, m_bufferSize);
+	//}
+	//catch (const std::bad_alloc& e)
+	//{
+	//	std::string msg = "Bad allocate!\nImage buffer allocate fail!\n" + std::string(e.what());
+	//	std::cerr << msg << std::endl;
+	//}
 }
 
 FrameBuffer::~FrameBuffer()
 {
-	delete[](m_buffer);
+	//delete[](m_buffer);
 }
 
 FrameBuffer::FrameBuffer(const FrameBuffer& rhs) :

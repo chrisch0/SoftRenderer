@@ -17,11 +17,11 @@ Color FullScreenQuadPS(PSInput* psInput, void* cb)
 {
 	ConstantBuffer* passCb = (ConstantBuffer*)cb;
 	float2 uv = psInput->uv;
-	float4 mouse = passCb->mouse / float4(passCb->resolution.x, passCb->resolution.y, passCb->resolution.x, passCb->resolution.y);
+	float4 mouse = passCb->Mouse / float4(passCb->Resolution.x, passCb->Resolution.y, passCb->Resolution.x, passCb->Resolution.y);
 
-	float3 col = 0.5f + 0.5f * Cos(passCb->time.x + float3(uv.x, uv.y, uv.x) + float3(0, 2, 4));
+	float3 col = 0.5f + 0.5f * Cos(passCb->Time.x + float3(uv.x, uv.y, uv.x) + float3(0, 2, 4));
 	//float3 col = float3(uv, 0.f);
-	float ratio_aspect = passCb->resolution.x / passCb->resolution.y;
+	float ratio_aspect = passCb->Resolution.x / passCb->Resolution.y;
 	uv.x *= ratio_aspect;
 	mouse.x *= ratio_aspect;
 	mouse.z *= ratio_aspect;

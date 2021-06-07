@@ -7,7 +7,7 @@ public:
 	Camera(const float3& pos, const float3& target, float aspect);
 	~Camera() {}
 
-	void SetFOV(float fovy);
+	void SetFOV(float fovyAngle);
 	void SetNear(float near);
 	void SetFar(float far);
 	void SetAspect(float aspect);
@@ -17,7 +17,7 @@ public:
 	float3 GetTarget() const;
 	float4x4 GetViewMatrix() const;
 	float4x4 GetProjectionMatrix() const;
-	void Update(const float4& deltaCursor);
+	void Update(const float4& deltaCursor, const float deltaScroll);
 	void UpdateViewMatrix();
 	void UpdateProjectionMatrix();
 
