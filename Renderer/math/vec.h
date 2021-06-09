@@ -30,20 +30,6 @@ public:
 		return *this;
 	}
 
-	//Vec2<T>& operator=(const std::initializer_list<T>& il)
-	//{
-	//	//std::assert(il.size() >= 2);
-	//	x = il[0]; y = il[1];
-	//	return *this;
-	//}
-
-	//Vec2<T>& operator=(const std::initializer_list<double>& il)
-	//{
-	//	//std::assert(il.size() >= 2);
-	//	x = il[0]; y = il[1];
-	//	return *this;
-	//}
-
 	Vec2<T> operator+(const Vec2<T>& rhs) const
 	{
 		return Vec2<T>(x + rhs.x, y + rhs.y);
@@ -91,6 +77,11 @@ public:
 		return Vec2<T>(-x, -y);
 	}
 
+	T operator[](uint8_t idx)
+	{
+
+	}
+
 	T LengthSquared() const { return x * x + y * y; }
 	T Length() const { return std::sqrt(x * x + y * y); }
 };
@@ -115,20 +106,6 @@ public:
 		x = rhs.x; y = rhs.y; z = rhs.z;
 		return *this;
 	}
-
-	//Vec3<T>& operator=(const std::initializer_list<T>& il)
-	//{
-	//	//std::assert(il.size() >= 3);
-	//	x = il[0]; y = il[1]; z = il[2];
-	//	return *this;
-	//}
-
-	//Vec3<T>& operator=(const std::initializer_list<double>& il)
-	//{
-	//	//std::assert(il.size() >= 3);
-	//	x = il[0]; y = il[1]; z = il[2];
-	//	return *this;
-	//}
 
 	Vec3<T> operator+(const Vec3<T>& rhs) const
 	{
@@ -206,23 +183,6 @@ public:
 		return *this;
 	}
 
-	//Vec4<T>& operator=(const std::initializer_list<T>& il)
-	//{
-	//	//std::assert(il.size() >= 4);
-	//	for (int i = 0, auto it = il.begin(); i < 4 && it != il.end(); ++i, ++it)
-	//	{
-
-	//	}
-	//	return *this;
-	//}
-
-	//Vec4<T>& operator=(const std::initializer_list<double>& il)
-	//{
-	//	//std::assert(il.size() >= 4);
-	//	x = il[0]; y = il[1]; z = il[2]; w = il[3];
-	//	return *this;
-	//}
-
 	Vec4<T> operator+(const Vec4<T>& rhs) const
 	{
 		return Vec4<T>(x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w);
@@ -295,6 +255,22 @@ template <typename T>
 Vec2<T> Lerp(const Vec2<T>& v1, const Vec2<T>& v2, T t)
 {
 	return v1 + (v2 - v1) * t;
+}
+
+template <typename T>
+Vec2<T> Min(const Vec2<T>& v1, const Vec2<T>& v2)
+{
+	return Vec2<T>(
+		v1.x < v2.x ? v1.x : v2.x,
+		v1.y < v2.y ? v1.y : v2.y);
+}
+
+template <typename T>
+Vec2<T> Max(const Vec2<T>& v1, const Vec2<T>& v2)
+{
+	return Vec2<T>(
+		v1.x > v2.x ? v1.x : v2.x,
+		v1.y > v2.y ? v1.y : v2.y);
 }
 
 template <typename T>

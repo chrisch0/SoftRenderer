@@ -19,6 +19,9 @@
     <Filter Include="shaders">
       <UniqueIdentifier>{d296fc87-77c6-4fb6-8a20-efb933380059}</UniqueIdentifier>
     </Filter>
+    <Filter Include="scene">
+      <UniqueIdentifier>{38546d02-5dcc-4589-ae00-24d02f9c7a7e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Renderer\main.cpp" />
@@ -26,9 +29,6 @@
       <Filter>utils</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\core\renderer.cpp">
-      <Filter>core</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer\core\frame_buffer.cpp">
       <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\math\vec.cpp">
@@ -49,15 +49,15 @@
     <ClCompile Include="Renderer\core\graphics.cpp">
       <Filter>core</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer\core\pixel_buffer.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renderer\utils\timer.h">
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\core\renderer.h">
-      <Filter>core</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer\core\frame_buffer.h">
       <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\math\vec.h">
@@ -86,6 +86,12 @@
     </ClInclude>
     <ClInclude Include="Renderer\shaders\cube.h">
       <Filter>shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\scene\scene.h">
+      <Filter>scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\core\pixel_buffer.h">
+      <Filter>core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

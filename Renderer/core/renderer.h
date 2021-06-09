@@ -5,7 +5,7 @@
 #include <functional>
 #include <vector>
 #include <array>
-#include "frame_buffer.h"
+#include "pixel_buffer.h"
 #include "graphics.h"
 #include "utils/timer.h"
 #include "camera.h"

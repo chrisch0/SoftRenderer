@@ -133,7 +133,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Renderer\core\camera.cpp" />
-    <ClCompile Include="Renderer\core\frame_buffer.cpp" />
+    <ClCompile Include="Renderer\core\pixel_buffer.cpp" />
     <ClCompile Include="Renderer\core\graphics.cpp" />
     <ClCompile Include="Renderer\core\renderer.cpp" />
     <ClCompile Include="Renderer\core\shader_functions.cpp" />
@@ -145,7 +145,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renderer\core\camera.h" />
-    <ClInclude Include="Renderer\core\frame_buffer.h" />
+    <ClInclude Include="Renderer\core\pixel_buffer.h" />
     <ClInclude Include="Renderer\core\renderer.h" />
     <ClInclude Include="Renderer\core\graphics.h" />
     <ClInclude Include="Renderer\core\shader_functions.h" />
@@ -153,6 +153,7 @@
     <ClInclude Include="Renderer\math\math.h" />
     <ClInclude Include="Renderer\math\matrix.h" />
     <ClInclude Include="Renderer\math\vec.h" />
+    <ClInclude Include="Renderer\scene\scene.h" />
     <ClInclude Include="Renderer\shaders\cube.h" />
     <ClInclude Include="Renderer\shaders\fullscreen_quad.h" />
     <ClInclude Include="Renderer\utils\timer.h" />

@@ -416,7 +416,6 @@ void Renderer::Render(const Timer& timer)
 			}
 		}
 
-		// triangle assembly
 		{
 			for (int v_idx = 0; v_idx < numInVertexAttri - 2; ++v_idx)
 			{
@@ -424,6 +423,7 @@ void Renderer::Render(const Timer& timer)
 				int idx1 = v_idx + 1;
 				int idx2 = v_idx + 2;
 
+				// triangle assembly
 				outVertexAttri[0] = inVertexAttri[idx0];
 				outVertexAttri[1] = inVertexAttri[idx1];
 				outVertexAttri[2] = inVertexAttri[idx2];
@@ -469,12 +469,22 @@ void Renderer::Render(const Timer& timer)
 					screen_depth[j] = z;
 				}
 
-				// TODO: build bounding box
+				// build bounding box
+				float2 range_min = Min(screen_coords[0], Min(screen_coords[1], screen_coords[2]));
+				float2 range_max = Max(screen_coords[0], Max(screen_coords[1], screen_coords[2]));
+				int x_min = (int)std::floor(range_min.x);
+				int y_min = (int)std::floor(range_min.y);
+				int x_max = (int)std::ceil(range_max.x);
+				int y_max = (int)std::ceil(range_max.y);
+				x_min = x_min > 0 ? x_min : 0;
+				y_min = y_min > 0 ? y_min : 0;
+				x_max = x_max < m_frameBuffer->GetWidth() ? x_max : m_frameBuffer->GetWidth();
+				y_max = y_max < m_frameBuffer->GetHeight() ? y_max : m_frameBuffer->GetHeight();
 				// TODO: add wire frame rasterizer mode
 		//#pragma omp parallel for schedule(dynamic)
-				for (int x = 0; x < m_frameBuffer->GetWidth(); ++x)
+				for (int x = x_min; x < x_max; ++x)
 				{
-					for (int y = 0; y < m_frameBuffer->GetHeight(); ++y)
+					for (int y = y_min; y < y_max; ++y)
 					{
 						float2 point = float2((float)x + 0.5f, (float)y + 0.5f);
 						float3 weights;
@@ -522,13 +532,15 @@ void Renderer::Render(const Timer& timer)
 							// TODO: multiple render targets
 							// pixel shader stage
 							Color pixel_color = m_pipelineState.PS(&pixel_attri, &m_passCB);
+
+							// TODO:: add blend
 							m_frameBuffer->SetColorBGR(x, y, pixel_color);
 						}
 					}
 				}
 			}
-			}
 		}
+	}
 		
 
 	m_deltaScroll = 0.0f;
