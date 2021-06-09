@@ -25,6 +25,6 @@ Color FullScreenQuadPS(PSInput* psInput, void* cb)
 	uv.x *= ratio_aspect;
 	mouse.x *= ratio_aspect;
 	mouse.z *= ratio_aspect;
-	col += shader::smoothstep(0.05f, 0.01f, (uv - float2(mouse.x, mouse.y)).Length());
+	col += float3(shader::smoothstep(0.05f, 0.01f, (uv - float2(mouse.x, mouse.y)).Length()));
 	return Color(col, 1.0f);
 }

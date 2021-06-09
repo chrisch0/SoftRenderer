@@ -17,6 +17,7 @@ struct PSInput
 	float3 positionWS;
 	float2 uv;
 	float4 color;
+	void LerpAssgin(const PSInput& v0, const PSInput& v1, float t);
 };
 
 struct ConstantBuffer
@@ -75,3 +76,19 @@ struct PipelineState
 	//VSOut outVertexAttribute[10];
 };
 
+
+enum eHomoClippingPlane
+{
+	Positive_W,
+	Positive_X,
+	Negative_X,
+	Positive_Y,
+	Negative_Y,
+	Positive_Z,
+	Negative_Z,
+	Clipping_Plane_Count
+};
+
+bool InsideClippingPlane(eHomoClippingPlane plane, const float4& coord);
+
+float LineSegmentIntersectClippingPlane(eHomoClippingPlane plane, const float4& p0, const float4& p1);

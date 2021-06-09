@@ -16,10 +16,10 @@ class Vec2
 public:
 	T x, y;
 	Vec2() : x(0), y(0) {}
-	Vec2(T v) : x(v), y(v) {}
+	explicit Vec2(T v) : x(v), y(v) {}
 	Vec2(T x, T y) : x(x), y(y) {}
-	Vec2(const Vec3<T>& v) : x(v.x), y(v.y) {}
-	Vec2(const Vec4<T>& v) : x(v.x), y(v.y) {}
+	explicit Vec2(const Vec3<T>& v) : x(v.x), y(v.y) {}
+	explicit Vec2(const Vec4<T>& v) : x(v.x), y(v.y) {}
 	~Vec2() {}
 
 	Vec2(const Vec2<T>& v) : x(v.x), y(v.y) {}
@@ -104,10 +104,10 @@ class Vec3
 public:
 	T x, y, z;
 	Vec3() : x(0), y(0), z(0) {}
-	Vec3(T v) : x(v), y(v), z(v) {}
+	explicit Vec3(T v) : x(v), y(v), z(v) {}
 	Vec3(T x, T y, T z) : x(x), y(y), z(z) {}
-	Vec3(const Vec2<T>& v, T z) : x(v.x), y(v.y), z(z) {}
-	Vec3(const Vec4<T>& v) : x(v.x), y(v.y), z(v.z) {}
+	explicit Vec3(const Vec2<T>& v, T z) : x(v.x), y(v.y), z(z) {}
+	explicit Vec3(const Vec4<T>& v) : x(v.x), y(v.y), z(v.z) {}
 	~Vec3() {}
 
 	Vec3<T>& operator=(const Vec3<T>& rhs)
@@ -141,17 +141,28 @@ public:
 		return *this;
 	}
 
+	Vec3<T> operator+(const T t) const
+	{
+		return Vec3<T>(x + t, y + t, z + t);
+	}
+
+	Vec3<T> operator+=(const T t)
+	{
+		x += t; y += t; z += t;
+		return *this;
+	}
+
 	Vec3<T> operator-(const Vec3<T>& rhs) const
 	{
 		return Vec3<T>(x - rhs.x, y - rhs.y, z - rhs.z);
 	}
 
-	Vec3<T> operator*(const T& s) const
+	Vec3<T> operator*(const T s) const
 	{
 		return Vec3<T>(x * s, y * s, z * s);
 	}
 
-	Vec3<T>& operator*=(const T& s)
+	Vec3<T>& operator*=(const T s)
 	{
 		x *= s; y *= s; z *= s;
 		return *this;
@@ -162,7 +173,7 @@ public:
 		return x * rhs.x + y * rhs.y + z * rhs.z;
 	}
 
-	Vec3<T> operator/(const T& s) const
+	Vec3<T> operator/(const T s) const
 	{
 		return Vec3<T>(x / s, y / s, z / s);
 	}
@@ -223,6 +234,17 @@ public:
 		return *this;
 	}
 
+	Vec4<T> operator-(const Vec4<T>& rhs) const
+	{
+		return Vec4<T>(x - rhs.x, y - rhs.y, z - rhs.z, w - rhs.w);
+	}
+
+	Vec4<T>& operator-=(const Vec4<T>& rhs)
+	{
+		x -= rhs.x; y -= rhs.y; z -= rhs.z; w -= rhs.w;
+		return *this;
+	}
+
 	Vec4<T> operator*(const T& s) const
 	{
 		return Vec4<T>(x * s, y * s, z * s, w * s);
@@ -270,13 +292,19 @@ inline Vec2<T> operator*(const T& s, const Vec2<T>& rhs)
 }
 
 template <typename T>
-inline Vec3<T> operator*(const T& s, const Vec3<T>& rhs)
+Vec2<T> Lerp(const Vec2<T>& v1, const Vec2<T>& v2, T t)
+{
+	return v1 + (v2 - v1) * t;
+}
+
+template <typename T>
+inline Vec3<T> operator*(const T s, const Vec3<T>& rhs)
 {
 	return rhs * s;
 }
 
 template <typename T>
-inline Vec3<T> operator+(const T& s, const Vec3<T>& rhs)
+inline Vec3<T> operator+(const T s, const Vec3<T>& rhs)
 {
 	return rhs + s;
 }
@@ -300,6 +328,18 @@ Vec3<T> Cross(const Vec3<T>& v1, const Vec3<T>& v2)
 	double v2x = v2.x, v2y = v2.y, v2z = v2.z;
 	return Vec3<T>((v1y * v2z) - (v1z * v2y), (v1z * v2x) - (v1x * v2z),
 		(v1x * v2y) - (v1y * v2x));
+}
+
+template <typename T>
+Vec3<T> Lerp(const Vec3<T>& v1, const Vec3<T>& v2, T t)
+{
+	return v1 + (v2 - v1) * t;
+}
+
+template <typename T>
+Vec4<T> Lerp(const Vec4<T>& v1, const Vec4<T>& v2, T t)
+{
+	return v1 + (v2 - v1) * t;
 }
 
 template <typename T>

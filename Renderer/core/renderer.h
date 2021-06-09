@@ -4,6 +4,7 @@
 #include <string>
 #include <functional>
 #include <vector>
+#include <array>
 #include "frame_buffer.h"
 #include "graphics.h"
 #include "utils/timer.h"
@@ -53,8 +54,10 @@ private:
 	PipelineState m_pipelineState;
 	Viewport m_viewport;
 
-	VSOut inVertexAttri[10];
-	PSInput outVertexAttri[10];
+	std::array<VSOut,10> inVertexAttri;
+	int numInVertexAttri = 0;
+	std::array<PSInput, 10> outVertexAttri;
+	int numOutVertexAttri = 0;
 	ConstantBuffer m_passCB;
 
 	std::vector<Vertex> m_vertexBuffer;

@@ -46,6 +46,9 @@
     <ClCompile Include="Renderer\math\functions.cpp">
       <Filter>math</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer\core\graphics.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renderer\utils\timer.h">
