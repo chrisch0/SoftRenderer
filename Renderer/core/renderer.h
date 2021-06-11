@@ -9,6 +9,15 @@
 #include "graphics.h"
 #include "utils/timer.h"
 #include "camera.h"
+#include "scene/scene.h"
+
+struct IO
+{
+	float4 DeltaMousePos;
+	float2 CurMousePos;
+	float2 ClickMousePos;
+	float DeltaScroll;
+};
 
 class Renderer
 {
@@ -19,7 +28,7 @@ public:
 	Renderer(const Renderer&) = delete;
 	Renderer& operator=(const Renderer&) = delete;
 	static Renderer* GetApp();
-	bool Initialize(VertexShader vs, PixelShader ps);
+	bool Initialize(Scene* scene);
 	void InitScene();
 	void MainLoop();
 	LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -35,11 +44,10 @@ private:
 	double m_clientHeight = 600;
 
 	bool InitMainWindow();
-	void InitPipelineState();
 	HDC CreateFrameBuffer();
 
-	void Update(const Timer& timer);
-	void Render(const Timer& timer);
+	void Update();
+	void Render();
 
 	typedef enum { BUTTON_L, BUTTON_R, BUTTON_MID } button_t;
 	void CalculateFrameStats();
@@ -51,23 +59,10 @@ private:
 	void OnMouseScroll(float scroll);
 	void OnMouseMove(WPARAM btnState, int x, int y);
 	
-	PipelineState m_pipelineState;
 	Viewport m_viewport;
-
-	std::array<VSOut,10> inVertexAttri;
-	int numInVertexAttri = 0;
-	std::array<PSInput, 10> outVertexAttri;
-	int numOutVertexAttri = 0;
-	ConstantBuffer m_passCB;
-
-	std::vector<Vertex> m_vertexBuffer;
-	std::vector<uint32_t> m_indexBuffer;
 	FrameBuffer* m_frameBuffer;
-
-	float2 m_lastLMouseClick;
-	float2 m_currentMousePos;
-	float4 m_deltaMousePos;
-	float m_deltaScroll;
-
+	IO m_io;
 	Camera m_camera;
+	Scene* m_scene;
+	GraphicsContext m_context;
 };

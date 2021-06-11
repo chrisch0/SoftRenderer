@@ -141,6 +141,9 @@
     <ClCompile Include="Renderer\math\functions.cpp" />
     <ClCompile Include="Renderer\math\matrix.cpp" />
     <ClCompile Include="Renderer\math\vec.cpp" />
+    <ClCompile Include="Renderer\scene\cube.cpp" />
+    <ClCompile Include="Renderer\scene\fullscreen_quad.cpp" />
+    <ClCompile Include="Renderer\scene\triangle.cpp" />
     <ClCompile Include="Renderer\utils\timer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -153,9 +156,10 @@
     <ClInclude Include="Renderer\math\math.h" />
     <ClInclude Include="Renderer\math\matrix.h" />
     <ClInclude Include="Renderer\math\vec.h" />
+    <ClInclude Include="Renderer\scene\cube.h" />
+    <ClInclude Include="Renderer\scene\fullscreen_quad.h" />
     <ClInclude Include="Renderer\scene\scene.h" />
-    <ClInclude Include="Renderer\shaders\cube.h" />
-    <ClInclude Include="Renderer\shaders\fullscreen_quad.h" />
+    <ClInclude Include="Renderer\scene\triangle.h" />
     <ClInclude Include="Renderer\utils\timer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

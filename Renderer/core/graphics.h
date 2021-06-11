@@ -88,16 +88,16 @@ enum eDepthFunc
 
 struct RasterizerDesc
 {
-	eFillMode FillMode;
-	eCullMode CullMode;
-	bool FrontCounterClockWise;
+	eFillMode FillMode = Fill_Mode_Solid;
+	eCullMode CullMode = Cull_Mode_None;
+	bool FrontCounterClockWise = true;
 };
 
 // TODO: actually only has depth test now
 struct DepthStencilDesc
 {
-	bool DepthEnable;
-	eDepthFunc DepthFunc;
+	bool DepthEnable = false;
+	eDepthFunc DepthFunc = Comparison_Func_Always;
 	//bool StencilEnable;
 	//uint8_t StencilReadMask;
 	//uint8_t StencilWriteMask;
@@ -109,29 +109,22 @@ struct PipelineState
 	VertexShader VS;
 	PixelShader PS;
 	RasterizerDesc RasterizerState;
-	
-	// for clipping
-	//VSOut inVertexAttribute[10];
-	//VSOut outVertexAttribute[10];
+	DepthStencilDesc DepthStencilState;
 };
-
-bool InsideClippingPlane(eHomoClippingPlane plane, const float4& coord);
-
-float LineSegmentIntersectClippingPlane(eHomoClippingPlane plane, const float4& p0, const float4& p1);
-
 
 class GraphicsContext
 {
 public:
 	void SetRenderTarget(FrameBuffer* frameBuffer, DepthBuffer* depthBuffer = nullptr, StencilBuffer* stencilBuffer = nullptr)
 	{
+		m_numRTs = 1;
 		m_frameBuffer = frameBuffer;
 		m_depthBuffer = depthBuffer;
 	}
 	void SetRenderTargets(FrameBuffer* frameBuffer, uint8_t numRTs, ColorBuffer* colorBuffers[], DepthBuffer* depthBuffer = nullptr, StencilBuffer* stencilBuffer = nullptr)
 	{
 		m_frameBuffer = frameBuffer;
-		m_numRTs = numRTs;
+		m_numRTs = numRTs + 1;
 		for (int i = 0; i < numRTs; ++i)
 		{
 			m_multiRenderTargets[i] = colorBuffers[i];
@@ -161,23 +154,20 @@ public:
 	void DrawIndexed(uint32_t indexCount, uint32_t startIndexLocation = 0, uint32_t baseVertexLocation = 0);
 
 	void ClearDepth(DepthBuffer* depthBuffer, float value);
-	void ClearColor(FrameBuffer* frameBuffer, Color value);
-	void ClearColor(ColorBuffer* colorBuffer, Color value);
+	void ClearColor(FrameBuffer* frameBuffer, const Color& value);
+	void ClearColor(ColorBuffer* colorBuffer, const Color& value);
 
 private:
 	FrameBuffer* m_frameBuffer;
 	ColorBuffer* m_multiRenderTargets[MAX_RENDER_TARGET];
 	DepthBuffer* m_depthBuffer;
-	uint8_t m_numRTs;
+	uint8_t m_numRTs = 0;
 	Vertex* m_vertexBuffer;
 	uint32_t* m_indexBuffer;
 	PipelineState* m_pipelineState;
 	Viewport* m_viewport;
 	void* m_passConstant;
 
-	std::array<VSOut, 10> m_vertexListIn;
-	uint8_t m_numVertexIn = 0;
-	std::array<PSInput, 10> m_vertexListOut;
-	uint8_t m_numVertexOut = 0;
-
+	std::array<VSOut, 10> m_vsOutVertices;
+	std::array<PSInput, 10> m_psInVertices;
 };

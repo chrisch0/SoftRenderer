@@ -1,6 +1,18 @@
 #include "camera.h"
 #include <iostream>
 
+Camera::Camera()
+	: m_position(float3(1.0f, 0.0f, 0.0f)), m_target(float3(0.0f, 0.0f, 0.0f)), m_aspect(1.0)
+{
+	m_fov = ToRadians(90.f);
+	m_up = float3(0.f, 1.f, 0.f);
+	m_near = 0.01f;
+	m_far = 10000.f;
+
+	UpdateViewMatrix();
+	UpdateProjectionMatrix();
+}
+
 Camera::Camera(const float3& pos, const float3& target, float aspect)
 	: m_position(pos), m_target(target), m_aspect(aspect)
 {
@@ -91,7 +103,7 @@ void Camera::Update(const float4& deltaCursor, const float deltaScroll)
 		distance * (float)std::cos(phi),
 		distance * (float)std::sin(phi) * (float)std::sin(theta));
 
-	m_target = m_target + delta_x + delta_y;
+	m_target = m_target - delta_x + delta_y;
 	m_position = m_target + offset;
 
 	// update view matrix

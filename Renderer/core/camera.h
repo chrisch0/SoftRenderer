@@ -4,6 +4,7 @@
 class Camera
 {
 public:
+	Camera();
 	Camera(const float3& pos, const float3& target, float aspect);
 	~Camera() {}
 

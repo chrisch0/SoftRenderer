@@ -1,11 +1,15 @@
 #include "core/renderer.h"
-#include "shaders/fullscreen_quad.h"
-#include "shaders/cube.h"
+#include "scene/fullscreen_quad.h"
+#include "scene/triangle.h"
+#include "scene/cube.h"
 
 int main(int argc, const char* argv[])
 {
 	Renderer renderer(640, 360);
-	renderer.Initialize(CubeVS, CubePS);
+	FullScreenQuad full_scene_quad;
+	Triangle triangle;
+	Cube cube;
+	renderer.Initialize(&cube);
 	renderer.InitScene();
 	renderer.MainLoop();
 	return 0;

@@ -16,9 +16,6 @@
     <Filter Include="utils">
       <UniqueIdentifier>{f8bc513d-869c-44af-ba8d-d3f9f0efde2a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="shaders">
-      <UniqueIdentifier>{d296fc87-77c6-4fb6-8a20-efb933380059}</UniqueIdentifier>
-    </Filter>
     <Filter Include="scene">
       <UniqueIdentifier>{38546d02-5dcc-4589-ae00-24d02f9c7a7e}</UniqueIdentifier>
     </Filter>
@@ -52,6 +49,15 @@
     <ClCompile Include="Renderer\core\pixel_buffer.cpp">
       <Filter>core</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer\scene\fullscreen_quad.cpp">
+      <Filter>scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\scene\triangle.cpp">
+      <Filter>scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\scene\cube.cpp">
+      <Filter>scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renderer\utils\timer.h">
@@ -62,9 +68,6 @@
     </ClInclude>
     <ClInclude Include="Renderer\math\vec.h">
       <Filter>math</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer\shaders\fullscreen_quad.h">
-      <Filter>shaders</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\core\graphics.h">
       <Filter>core</Filter>
@@ -84,14 +87,20 @@
     <ClInclude Include="Renderer\math\functions.h">
       <Filter>math</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\shaders\cube.h">
-      <Filter>shaders</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer\scene\scene.h">
       <Filter>scene</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\core\pixel_buffer.h">
       <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\scene\fullscreen_quad.h">
+      <Filter>scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\scene\triangle.h">
+      <Filter>scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\scene\cube.h">
+      <Filter>scene</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

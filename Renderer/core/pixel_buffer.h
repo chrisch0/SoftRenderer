@@ -48,8 +48,27 @@ public:
 	void SetWidth(int width) { m_width = width; }
 	void SetHeight(int height) { m_height = height; }
 
+	T GetValue(size_t idx)
+	{
+		assert(idx < m_bufferSize);
+		return m_buffer[idx];
+	}
+
+	T GetValue(int x, int y)
+	{
+		int index = m_width * y * NumChannels + x * NumChannels;
+		return m_buffer[index];
+	}
+
 	void SetValue(size_t idx, T value)
 	{
+		assert(idx < m_bufferSize);
+		m_buffer[idx] = value;
+	}
+
+	void SetValue(int x, int y, T value)
+	{
+		int idx = m_width * y * NumChannels + x * NumChannels;
 		assert(idx < m_bufferSize);
 		m_buffer[idx] = value;
 	}

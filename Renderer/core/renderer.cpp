@@ -31,7 +31,7 @@ Renderer::Renderer(int width, int height) :
 
 Renderer::~Renderer()
 {
-
+	m_scene->Release();
 }
 
 Renderer* Renderer::GetApp()
@@ -39,27 +39,16 @@ Renderer* Renderer::GetApp()
 	return m_app;
 }
 
-bool Renderer::Initialize(VertexShader vs, PixelShader ps)
+bool Renderer::Initialize(Scene* scene)
 {
 	if (!InitMainWindow())
 		return false;
-	//m_memoryDC = CreateFrameBuffer();
 
-	m_pipelineState.VS = vs;
-	m_pipelineState.PS = ps;
-	InitPipelineState();
+	m_scene = scene;
 
 	omp_set_num_threads(std::thread::hardware_concurrency());
 
 	return true;
-}
-
-void Renderer::InitPipelineState()
-{
-	RasterizerDesc& rs_desc = m_pipelineState.RasterizerState;
-	rs_desc.CullMode = Cull_Mode_Back;
-	rs_desc.FrontCounterClockWise = true;
-
 }
 
 void Renderer::MainLoop()
@@ -81,8 +70,8 @@ void Renderer::MainLoop()
 			CalculateFrameStats();
 			if (!m_appPaused)
 			{
-				Update(m_timer);
-				Render(m_timer);
+				Update();
+				Render();
 				HDC window_dc = GetDC(m_hMainWnd);
 				BitBlt(window_dc, 0, 0, m_clientWidth, m_clientHeight, m_memoryDC, 0, 0, SRCCOPY);
 				ReleaseDC(m_hMainWnd, window_dc);
@@ -178,373 +167,23 @@ HDC Renderer::CreateFrameBuffer()
 
 void Renderer::InitScene()
 {
-	// full screen quad
-	/*
-	{
-		Vertex v;
-		v.position = float3(-1.f, -1.f, 0.f);
-		v.normal = float3(0.f, 0.f, -1.f);
-		v.uv = float2(0.f, 1.f);
-		v.color = float4(1.f, 0.f, 0.f, 1.f);
-		m_vertexBuffer.push_back(v);
-		v.position = float3(1.f, -1.f, 0.f);
-		v.uv = float2(1.f, 1.f);
-		m_vertexBuffer.push_back(v);
-		v.position = float3(-1.f, 1.f, 0.f);
-		v.uv = float2(0.f, 0.f);
-		m_vertexBuffer.push_back(v);
-
-		v.position = float3(1.f, 1.f, 0.f);
-		v.uv = float2(1.f, 0.f);
-		v.color = float4(0.f, 0.f, 0.f, 0.f);
-		m_vertexBuffer.push_back(v);
-		v.position = float3(1.f, -1.f, 0.f);
-		v.uv = float2(1.f, 1.f);
-		m_vertexBuffer.push_back(v);
-		v.position = float3(-1.f, 1.f, 0.f);
-		v.uv = float2(0.f, 0.f);
-		m_vertexBuffer.push_back(v);
-
-		m_indexBuffer.push_back(0);
-		m_indexBuffer.push_back(1);
-		m_indexBuffer.push_back(2);
-		m_indexBuffer.push_back(4);
-		m_indexBuffer.push_back(3);
-		m_indexBuffer.push_back(5);
-	}
-	*/
-
-	// cube
-
-	{
-		Vertex v;
-		v.position = float3( -0.5f, -0.5f, -0.5f );
-		v.normal = float3( 0.0f, 0.0f, -1.0f );
-		v.uv = float2( 0.0f, 1.0f );
-		v.color = float4( 1.0f, 0.0f, 0.0f, 1.0f );
-		m_vertexBuffer.push_back(v);
-		v.position = float3( -0.5f, +0.5f, -0.5f );
-		v.uv = float2( 0.0f, 0.0f );
-		m_vertexBuffer.push_back(v);
-		v.position = float3( +0.5f, +0.5f, -0.5f );
-		v.uv = float2( 1.0f, 0.0f );
-		m_vertexBuffer.push_back(v);
-		v.position = float3( +0.5f, -0.5f, -0.5f );
-		v.uv = float2( 1.0f, 1.0f );
-		m_vertexBuffer.push_back(v);
-
-		v.position = float3( -0.5f, -0.5f, +0.5f );
-		v.normal = float3( 0.0f, 0.0f, 1.0f );
-		v.uv = float2( 1.0f, 1.0f );
-		v.color = float4( 0.0f, 1.0f, 0.0f, 1.0f );
-		m_vertexBuffer.push_back(v);
-		v.position = float3( +0.5f, -0.5f, +0.5f );
-		v.uv = float2( 0.0f, 1.0f );
-		m_vertexBuffer.push_back(v);
-		v.position = float3( +0.5f, +0.5f, +0.5f );
-		v.uv = float2( 0.0f, 0.0f );
-		m_vertexBuffer.push_back(v);
-		v.position = float3( -0.5f, +0.5f, +0.5f );
-		v.uv = float2( 1.0f, 0.0f );
-		m_vertexBuffer.push_back(v);
-
-		v.position = float3( -0.5f, +0.5f, -0.5f );
-		v.normal = float3( 0.0f, 1.0f, 0.0f );
-		v.uv = float2( 0.0f, 1.0f );
-		v.color = float4( 0.0f, 0.0f, 1.0f, 1.0f );
-		m_vertexBuffer.push_back(v);
-		v.position = float3( -0.5f, +0.5f, +0.5f );
-		v.uv = float2( 0.0f, 0.0f );
-		m_vertexBuffer.push_back(v);
-		v.position = float3( +0.5f, +0.5f, +0.5f );
-		v.uv = float2( 1.0f, 0.0f );
-		m_vertexBuffer.push_back(v);
-		v.position = float3( +0.5f, +0.5f, -0.5f );
-		v.uv = float2( 1.0f, 1.0f );
-		m_vertexBuffer.push_back(v);
-
-		v.position = float3( -0.5f, -0.5f, -0.5f );
-		v.normal = float3( 0.0f, -1.0f, 0.0f );
-		v.uv = float2( 1.0f, 1.0f );
-		v.color = float4( 1.0f, 1.0f, 0.0f, 1.0f );
-		m_vertexBuffer.push_back(v);
-		v.position = float3( +0.5f, -0.5f, -0.5f );
-		v.uv = float2( 0.0f, 1.0f );
-		m_vertexBuffer.push_back(v);
-		v.position = float3( +0.5f, -0.5f, +0.5f );
-		v.uv = float2( 0.0f, 0.0f );
-		m_vertexBuffer.push_back(v);
-		v.position = float3( -0.5f, -0.5f, +0.5f );
-		v.uv = float2( 1.0f, 0.0f );
-		m_vertexBuffer.push_back(v);
-
-		v.position = float3( -0.5f, -0.5f, +0.5f );
-		v.normal = float3( -1.0f, 0.0f, 0.0f );
-		v.uv = float2( 0.0f, 1.0f );
-		v.color = float4( 0.0f, 1.0f, 1.0f, 1.0f );
-		m_vertexBuffer.push_back(v);
-		v.position = float3( -0.5f, +0.5f, +0.5f );
-		v.uv = float2( 0.0f, 0.0f );
-		m_vertexBuffer.push_back(v);
-		v.position = float3( -0.5f, +0.5f, -0.5f );
-		v.uv = float2( 1.0f, 0.0f );
-		m_vertexBuffer.push_back(v);
-		v.position = float3( -0.5f, -0.5f, -0.5f );
-		v.uv = float2( 1.0f, 1.0f );
-		m_vertexBuffer.push_back(v);
-
-
-		v.position = float3( +0.5f, -0.5f, -0.5f );
-		v.normal = float3( 1.0f, 0.0f, 0.0f );
-		v.uv = float2( 0.0f, 1.0f );
-		v.color = float4( 1.0f, 1.0f, 1.0f, 1.0f );
-		m_vertexBuffer.push_back(v);
-		v.position = float3( +0.5f, +0.5f, -0.5f );
-		v.uv = float2(0.0f, 0.0);
-		m_vertexBuffer.push_back(v);
-		v.position = float3( +0.5f, +0.5f, +0.5f );
-		v.uv = float2(1.0f, 0.0);
-		m_vertexBuffer.push_back(v);
-		v.position = float3( +0.5f, -0.5f, +0.5f );
-		v.uv = float2(1.0f, 1.0);
-		m_vertexBuffer.push_back(v);
-
-		m_indexBuffer = {
-			0, 1, 2, 0, 2, 3,
-			4, 5, 6, 4, 6, 7,
-			8, 9, 10, 8, 10, 11,
-			12, 13, 14, 12, 14, 15,
-			16, 17, 18, 16, 18, 19,
-			20, 21, 22, 20, 22, 23
-		};
-
-		m_camera.SetPosition(float3(1.f, 0.f, 0.f));
-	}
-
-	// triangle
-	/*{
-		Vertex v;
-		v.position = float3(-0.5f, 0.f, 0.f);
-		v.color = float4(1.f, 1.f, 1.f, 1.f);
-		v.uv = float2(1.f, 0.f);
-		v.normal = float3(0.f, 0.f, 1.f);
-		m_vertexBuffer.push_back(v);
-		v.position = float3(0.f, 0.5f, 0.f);
-		v.uv = float2(0.f, 0.f);
-		m_vertexBuffer.push_back(v);
-		v.position = float3(0.5f, 0.f, 0.f);
-		v.uv = float2(0.f, 1.f);
-		m_vertexBuffer.push_back(v);
-		m_indexBuffer = { 0, 1, 2 };
-		m_camera.SetPosition(float3(0.3, -0.25f, -0.3));
-		m_camera.SetTarget(float3(0.f, 0.25f, 0.f));
-	}*/
+	m_scene->InitScene(m_frameBuffer, m_camera);
 }
 
-void Renderer::Update(const Timer& timer)
+void Renderer::Update()
 {
-	m_passCB.Resolution = float4(m_frameBuffer->GetWidth(), m_frameBuffer->GetHeight(), 1.f / m_frameBuffer->GetWidth(), 1.f / m_frameBuffer->GetHeight());
-	m_passCB.Mouse = float4(m_currentMousePos.x, m_currentMousePos.y, m_lastLMouseClick.x, m_lastLMouseClick.y);
-	m_passCB.Time = float2(timer.TotalTime(), timer.DeltaTime());
-	/*{
-		static float theta = 0.0f;
-		theta += PI * timer.DeltaTime();
-		float3 pos = m_camera.GetPosition();
-		pos.x = 0.25f * std::sin(theta);
-		pos.z = -0.25f * std::cos(theta);
-		m_camera.SetPosition(pos);
-		m_camera.UpdateViewMatrix();
-	}*/
-	float4 delta_pos = float4(m_deltaMousePos.x / m_clientWidth, m_deltaMousePos.y / m_clientHeight, m_deltaMousePos.z / m_clientWidth, m_deltaMousePos.w / m_clientHeight);
-	m_camera.Update(delta_pos * 0.5f, m_deltaScroll);
-	m_passCB.ViewMat = m_camera.GetViewMatrix();
-	m_passCB.ProjMat = m_camera.GetProjectionMatrix();
-	//std::cout << m_deltaMousePos;
+	float4 delta_pos = float4(m_io.DeltaMousePos.x / m_clientWidth, m_io.DeltaMousePos.y / m_clientHeight, m_io.DeltaMousePos.z / m_clientWidth, m_io.DeltaMousePos.w / m_clientHeight);
+	m_camera.Update(delta_pos * 0.5f, m_io.DeltaScroll);
+	m_scene->Update(m_timer, m_io, m_camera);
 }
 
-void Renderer::Render(const Timer& timer)
+void Renderer::Render()
 {
-	m_frameBuffer->Clear(Color(0.2, 0.2, 0.2, 1.0));
+	m_context.SetViewport(&m_viewport);
+	m_scene->Draw(m_context);
 
-	int num_faces = m_indexBuffer.size() / 3;
-	for (int i = 0; i < num_faces; ++i)
-	{
-		numInVertexAttri = 0;
-		numOutVertexAttri = 0;
-		// vertex shader stage
-		for (int j = 0; j < 3; ++j)
-		{
-			VSInput* vs_input = &m_vertexBuffer[m_indexBuffer[i * 3 + j]];
-			inVertexAttri[j] = m_pipelineState.VS(vs_input, &m_passCB);
-			numInVertexAttri++;
-		}
-
-		// triangle clipping
-		{
-			for (int clipping_plane = 0; clipping_plane < Clipping_Plane_Count; ++clipping_plane)
-			{
-				numOutVertexAttri = 0;
-				for (int vertex_idx = 0; vertex_idx < numInVertexAttri; ++vertex_idx)
-				{
-					auto& last_vertex = inVertexAttri[(vertex_idx - 1 + numInVertexAttri) % numInVertexAttri];
-					auto& current_vertex = inVertexAttri[vertex_idx];
-					bool lv_inside = InsideClippingPlane((eHomoClippingPlane)clipping_plane, last_vertex.sv_position);
-					bool cv_inside = InsideClippingPlane((eHomoClippingPlane)clipping_plane, current_vertex.sv_position);
-					if (cv_inside)
-					{
-						// if need clip, add intersection point to out array
-						if (!lv_inside)
-						{
-							float t = LineSegmentIntersectClippingPlane((eHomoClippingPlane)clipping_plane, last_vertex.sv_position, current_vertex.sv_position);
-							VSOut& intersection_point = outVertexAttri[numOutVertexAttri];
-							intersection_point.LerpAssgin(last_vertex, current_vertex, t);
-							numOutVertexAttri++;
-						}
-						outVertexAttri[numOutVertexAttri] = current_vertex;
-						numOutVertexAttri++;
-					}
-					else if (lv_inside)
-					{
-						float t = LineSegmentIntersectClippingPlane((eHomoClippingPlane)clipping_plane, last_vertex.sv_position, current_vertex.sv_position);
-						VSOut& intersection_point = outVertexAttri[numOutVertexAttri];
-						intersection_point.LerpAssgin(last_vertex, current_vertex, t);
-						numOutVertexAttri++;
-					}
-				}
-				std::swap(inVertexAttri, outVertexAttri);
-				numInVertexAttri = numOutVertexAttri;
-			}
-		}
-
-		{
-			for (int v_idx = 0; v_idx < numInVertexAttri - 2; ++v_idx)
-			{
-				int idx0 = 0;
-				int idx1 = v_idx + 1;
-				int idx2 = v_idx + 2;
-
-				// triangle assembly
-				outVertexAttri[0] = inVertexAttri[idx0];
-				outVertexAttri[1] = inVertexAttri[idx1];
-				outVertexAttri[2] = inVertexAttri[idx2];
-
-				// rasterize triangle
-
-				// perspective division
-				static float3 ndc_coords[3];
-				static float recip_w[3];
-				for (int j = 0; j < 3; ++j)
-				{
-					recip_w[j] = 1.f / outVertexAttri[j].sv_position.w;
-					outVertexAttri[j].sv_position = outVertexAttri[j].sv_position / outVertexAttri[j].sv_position.w;
-					ndc_coords[j] = float3(outVertexAttri[j].sv_position);
-				}
-
-				// face culling
-				if (m_pipelineState.RasterizerState.CullMode != Cull_Mode_None)
-				{
-
-					auto v0 = ndc_coords[0];
-					auto v1 = ndc_coords[1];
-					auto v2 = ndc_coords[2];
-					float r = v0 * Cross(v1 - v0, v2 - v0);
-					// front ccw
-					bool is_back_face = !(r >= 0 ^ m_pipelineState.RasterizerState.FrontCounterClockWise);
-					bool is_culling = !(m_pipelineState.RasterizerState.CullMode == Cull_Mode_Back ^ is_back_face);
-					if (is_culling)
-						continue;
-				}
-
-				// viewport mapping
-				static float2 screen_coords[3];
-				static float screen_depth[3];
-				for (int j = 0; j < 3; ++j)
-				{
-					float3 ndc_coord = float3(outVertexAttri[j].sv_position);
-					float x = (ndc_coord.x + 1.f) * 0.5f * (float)m_frameBuffer->GetWidth() + m_viewport.TopLeftX;
-					float y = (1.f - ndc_coord.y) * 0.5f * (float)m_frameBuffer->GetHeight() + m_viewport.TopLeftY;
-					float z = m_viewport.MinDepth + ndc_coord.z * (m_viewport.MaxDepth - m_viewport.MinDepth);
-					outVertexAttri[j].sv_position = float4(x, y, z, 1.0f);
-					screen_coords[j] = float2(x, y);
-					screen_depth[j] = z;
-				}
-
-				// build bounding box
-				float2 range_min = Min(screen_coords[0], Min(screen_coords[1], screen_coords[2]));
-				float2 range_max = Max(screen_coords[0], Max(screen_coords[1], screen_coords[2]));
-				int x_min = (int)std::floor(range_min.x);
-				int y_min = (int)std::floor(range_min.y);
-				int x_max = (int)std::ceil(range_max.x);
-				int y_max = (int)std::ceil(range_max.y);
-				x_min = x_min > 0 ? x_min : 0;
-				y_min = y_min > 0 ? y_min : 0;
-				x_max = x_max < m_frameBuffer->GetWidth() ? x_max : m_frameBuffer->GetWidth();
-				y_max = y_max < m_frameBuffer->GetHeight() ? y_max : m_frameBuffer->GetHeight();
-				// TODO: add wire frame rasterizer mode
-		//#pragma omp parallel for schedule(dynamic)
-				for (int x = x_min; x < x_max; ++x)
-				{
-					for (int y = y_min; y < y_max; ++y)
-					{
-						float2 point = float2((float)x + 0.5f, (float)y + 0.5f);
-						float3 weights;
-						{
-							float2 a = screen_coords[0];
-							float2 b = screen_coords[1];
-							float2 c = screen_coords[2];
-							float2 bp = point - b;
-							float2 bc = c - b;
-							float2 ba = a - b;
-							float2 cp = point - c;
-							float2 ca = a - c;
-							float alpha = (-bp.x * bc.y + bp.y * bc.x) / (-ba.x * bc.y + ba.y * bc.x);
-							float beta = (-cp.x * ca.y + cp.y * ca.x) / (bc.x * ca.y - bc.y * ca.x);
-							weights = float3(alpha, beta, 1 - alpha - beta);
-						}
-						// if pixel inside triangle
-						if (weights.x > -std::numeric_limits<float>::epsilon() &&
-							weights.y > -std::numeric_limits<float>::epsilon() &&
-							weights.z > -std::numeric_limits<float>::epsilon())
-						{
-							// interpolate depth
-							float depth = screen_depth[0] * weights.x + screen_depth[1] * weights.y + screen_depth[2] * weights.z;
-
-							// TODO: add early depth test
-							// if (pipelineState.depthStencilState... && depth < depthBuffer[x][y])
-							// interpolate vertex attributes
-							PSInput pixel_attri;
-							{
-								float* a0 = (float*)&(outVertexAttri[0]);
-								float* a1 = (float*)&(outVertexAttri[1]);
-								float* a2 = (float*)&(outVertexAttri[2]);
-								float* r = (float*)&pixel_attri;
-								float weight0 = recip_w[0] * weights.x;
-								float weight1 = recip_w[1] * weights.y;
-								float weight2 = recip_w[2] * weights.z;
-								float norm = 1.f / (weight0 + weight1 + weight2);
-								// perspective correct interpolation
-								for (int j = 0; j < sizeof(PSInput) / sizeof(float); ++j)
-								{
-									float attri = norm * (a0[j] * weight0 + a1[j] * weight1 + a2[j] * weight2);
-									r[j] = attri;
-								}
-							}
-							// TODO: multiple render targets
-							// pixel shader stage
-							Color pixel_color = m_pipelineState.PS(&pixel_attri, &m_passCB);
-
-							// TODO:: add blend
-							m_frameBuffer->SetColorBGR(x, y, pixel_color);
-						}
-					}
-				}
-			}
-		}
-	}
-		
-
-	m_deltaScroll = 0.0f;
-	m_deltaMousePos = float4(0.f, 0.f, 0.f, 0.f);
+	m_io.DeltaScroll = 0.0f;
+	m_io.DeltaMousePos = float4(0.f, 0.f, 0.f, 0.f);
 }
 
 LRESULT Renderer::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -604,10 +243,6 @@ LRESULT Renderer::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 void Renderer::OnResize()
 {
 	DeleteDC(m_memoryDC);
-	/*if (m_frameBuffer && m_frameBuffer->GetBuffer() != nullptr)
-		delete m_frameBuffer->GetBuffer();*/
-	//if (m_frameBuffer != nullptr)
-		//delete m_frameBuffer;
 	m_memoryDC = CreateFrameBuffer();
 	m_viewport.TopLeftX = 0.0f;
 	m_viewport.TopLeftY = 0.0f;
@@ -615,6 +250,7 @@ void Renderer::OnResize()
 	m_viewport.Height = (float)m_clientHeight;
 	m_viewport.MinDepth = 0.0f;
 	m_viewport.MaxDepth = 1.0f;
+	m_camera.SetAspect((float)m_clientWidth / (float)m_clientHeight);
 }
 
 void Renderer::OnKeyDown(WPARAM key)
@@ -629,9 +265,8 @@ void Renderer::OnKeyUp(WPARAM key)
 
 void Renderer::OnMouseDown(button_t button, int x, int y)
 {
-	m_lastLMouseClick.x = x;
-	m_lastLMouseClick.y = y;
-
+	m_io.ClickMousePos.x = x;
+	m_io.ClickMousePos.y = y;
 
 	SetCapture(m_hMainWnd);
 }
@@ -643,7 +278,7 @@ void Renderer::OnMouseUp(button_t button, int x, int y)
 
 void Renderer::OnMouseScroll(float scroll)
 {
-	m_deltaScroll += scroll;
+	m_io.DeltaScroll += scroll;
 }
 
 void Renderer::OnMouseMove(WPARAM btnState, int x, int y)
@@ -651,17 +286,17 @@ void Renderer::OnMouseMove(WPARAM btnState, int x, int y)
 	//m_deltaMousePos = float4(0.0f);
 	if ((btnState & MK_LBUTTON) != 0)
 	{
-		m_deltaMousePos.x += (x - m_currentMousePos.x);
-		m_deltaMousePos.y += (y - m_currentMousePos.y);
+		m_io.DeltaMousePos.x += (x - m_io.CurMousePos.x);
+		m_io.DeltaMousePos.y += (y - m_io.CurMousePos.y);
 	}
 	else if ((btnState & MK_RBUTTON) != 0)
 	{
-		m_deltaMousePos.z += (x - m_currentMousePos.x);
-		m_deltaMousePos.w += (y - m_currentMousePos.y);
+		m_io.DeltaMousePos.z += (x - m_io.CurMousePos.x);
+		m_io.DeltaMousePos.w += (y - m_io.CurMousePos.y);
 	}
 			
-	m_currentMousePos.x = x;
-	m_currentMousePos.y = y;
+	m_io.CurMousePos.x = x;
+	m_io.CurMousePos.y = y;
 }
 
 void Renderer::CalculateFrameStats()
