@@ -58,6 +58,9 @@
     <ClCompile Include="Renderer\scene\cube.cpp">
       <Filter>scene</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer\core\model.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renderer\utils\timer.h">
@@ -101,6 +104,9 @@
     </ClInclude>
     <ClInclude Include="Renderer\scene\cube.h">
       <Filter>scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\core\model.h">
+      <Filter>core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

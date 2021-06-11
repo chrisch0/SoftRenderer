@@ -133,6 +133,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Renderer\core\camera.cpp" />
+    <ClCompile Include="Renderer\core\model.cpp" />
     <ClCompile Include="Renderer\core\pixel_buffer.cpp" />
     <ClCompile Include="Renderer\core\graphics.cpp" />
     <ClCompile Include="Renderer\core\renderer.cpp" />
@@ -148,6 +149,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renderer\core\camera.h" />
+    <ClInclude Include="Renderer\core\model.h" />
     <ClInclude Include="Renderer\core\pixel_buffer.h" />
     <ClInclude Include="Renderer\core\renderer.h" />
     <ClInclude Include="Renderer\core\graphics.h" />
