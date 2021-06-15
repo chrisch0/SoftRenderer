@@ -108,5 +108,8 @@
     <ClInclude Include="Renderer\core\model.h">
       <Filter>core</Filter>
     </ClInclude>
+    <ClInclude Include="Renderer\utils\io_utils.h">
+      <Filter>utils</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

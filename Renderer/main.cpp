@@ -2,9 +2,12 @@
 #include "scene/fullscreen_quad.h"
 #include "scene/triangle.h"
 #include "scene/cube.h"
+#include "core/model.h"
 
 int main(int argc, const char* argv[])
 {
+	Model m;
+	m.LoadFromOBJ("assets/Fishing Boat/Boat.obj");
 	Renderer renderer(640, 360);
 	FullScreenQuad full_scene_quad;
 	Triangle triangle;

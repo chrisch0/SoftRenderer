@@ -162,6 +162,7 @@
     <ClInclude Include="Renderer\scene\fullscreen_quad.h" />
     <ClInclude Include="Renderer\scene\scene.h" />
     <ClInclude Include="Renderer\scene\triangle.h" />
+    <ClInclude Include="Renderer\utils\io_utils.h" />
     <ClInclude Include="Renderer\utils\timer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
