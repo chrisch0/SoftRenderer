@@ -60,7 +60,7 @@ bool IsNanOrInf(std::vector<char>& data, size_t iter)
 }
 
 inline 
-int CountComponentsInLine(std::vector<char>& data, size_t lineBeg, size_t lineEnd)
+int CountNumricComponentsInLine(std::vector<char>& data, size_t lineBeg, size_t lineEnd)
 {
 	int num_components = 0;
 	while (lineBeg < lineEnd)

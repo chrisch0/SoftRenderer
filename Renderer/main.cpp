@@ -7,7 +7,7 @@
 int main(int argc, const char* argv[])
 {
 	Model m;
-	m.LoadFromOBJ("assets/Fishing Boat/Boat.obj");
+	m.LoadFromOBJ("assets/Fishing Boat/test.obj");
 	Renderer renderer(640, 360);
 	FullScreenQuad full_scene_quad;
 	Triangle triangle;

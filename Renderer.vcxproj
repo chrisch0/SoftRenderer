@@ -138,6 +138,7 @@
     <ClCompile Include="Renderer\core\graphics.cpp" />
     <ClCompile Include="Renderer\core\renderer.cpp" />
     <ClCompile Include="Renderer\core\shader_functions.cpp" />
+    <ClCompile Include="Renderer\core\texture.cpp" />
     <ClCompile Include="Renderer\main.cpp" />
     <ClCompile Include="Renderer\math\functions.cpp" />
     <ClCompile Include="Renderer\math\matrix.cpp" />
@@ -154,6 +155,7 @@
     <ClInclude Include="Renderer\core\renderer.h" />
     <ClInclude Include="Renderer\core\graphics.h" />
     <ClInclude Include="Renderer\core\shader_functions.h" />
+    <ClInclude Include="Renderer\core\texture.h" />
     <ClInclude Include="Renderer\math\functions.h" />
     <ClInclude Include="Renderer\math\math.h" />
     <ClInclude Include="Renderer\math\matrix.h" />
