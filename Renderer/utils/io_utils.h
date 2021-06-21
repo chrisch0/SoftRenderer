@@ -10,7 +10,7 @@ bool IsLineEnd(char c)
 }
 
 inline 
-size_t FindLineEnd(std::vector<char>& data, size_t lineBeg)
+size_t FindLineEnd(const std::string& data, size_t lineBeg)
 {
 	size_t line_end = lineBeg + 1;
 	while (line_end < data.size() && !IsLineEnd(data[line_end]))
@@ -21,7 +21,7 @@ size_t FindLineEnd(std::vector<char>& data, size_t lineBeg)
 }
 
 inline 
-bool SkipSpaces(std::vector<char>& data, size_t& iter)
+bool SkipSpaces(const std::string& data, size_t& iter)
 {
 	while (data[iter] == ' ' || data[iter] == '\t')
 	{
@@ -31,7 +31,7 @@ bool SkipSpaces(std::vector<char>& data, size_t& iter)
 }
 
 inline 
-void SkipToken(std::vector<char>& data, size_t& begin, size_t end)
+void SkipToken(const std::string& data, size_t& begin, size_t end)
 {
 	while (begin < end && data[begin] != ' ')
 	{
@@ -40,13 +40,13 @@ void SkipToken(std::vector<char>& data, size_t& begin, size_t end)
 }
 
 inline 
-bool IsNumeric(std::vector<char>& data, size_t iter)
+bool IsNumeric(const std::string& data, size_t iter)
 {
 	return (data[iter] >= '0' && data[iter] <= '9') || data[iter] == '+' || data[iter] == '-';
 }
 
 inline 
-bool IsNanOrInf(std::vector<char>& data, size_t iter)
+bool IsNanOrInf(const std::string& data, size_t iter)
 {
 	if (data[iter] == 'N' || data[iter] == 'n')
 	{
@@ -60,7 +60,7 @@ bool IsNanOrInf(std::vector<char>& data, size_t iter)
 }
 
 inline 
-int CountNumricComponentsInLine(std::vector<char>& data, size_t lineBeg, size_t lineEnd)
+int CountNumricComponentsInLine(const std::string& data, size_t lineBeg, size_t lineEnd)
 {
 	int num_components = 0;
 	while (lineBeg < lineEnd)

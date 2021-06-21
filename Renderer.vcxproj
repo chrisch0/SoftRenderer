@@ -156,6 +156,7 @@
     <ClInclude Include="Renderer\core\graphics.h" />
     <ClInclude Include="Renderer\core\shader_functions.h" />
     <ClInclude Include="Renderer\core\texture.h" />
+    <ClInclude Include="Renderer\math\bounding_box.h" />
     <ClInclude Include="Renderer\math\functions.h" />
     <ClInclude Include="Renderer\math\math.h" />
     <ClInclude Include="Renderer\math\matrix.h" />

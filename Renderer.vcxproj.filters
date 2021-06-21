@@ -117,5 +117,8 @@
     <ClInclude Include="Renderer\core\texture.h">
       <Filter>core</Filter>
     </ClInclude>
+    <ClInclude Include="Renderer\math\bounding_box.h">
+      <Filter>math</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
