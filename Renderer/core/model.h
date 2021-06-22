@@ -46,14 +46,17 @@ public:
 	~Model();
 	void LoadFromOBJ(const std::string& filename);
 	void Draw(GraphicsContext& context);
+	float3 GetCenter() const { return (m_bbox.BoxMin + m_bbox.BoxMax) * 0.5f; }
+	float GetRadius() const { return (m_bbox.BoxMax - m_bbox.BoxMin).Length() * 0.5f; }
 private:
 	void BuildModel(std::vector<float3>& positions,
 		std::vector<float3>& colors,
 		std::vector<float2>& texture_coords,
 		std::vector<float3>& normals);
 	std::unordered_map<std::string, Mesh*> m_pMeshes;
+	std::unordered_map<std::string, Material*> m_pMaterials;
 	std::vector<Vertex> m_vertexBuffer;
 	std::vector<uint32_t> m_indexBuffer;
-	BoundingBox3D bbox;
-	uint32_t m_indexCount;
+	BoundingBox3D m_bbox;
+	size_t m_indexCount;
 };

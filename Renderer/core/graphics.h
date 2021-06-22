@@ -167,7 +167,4 @@ private:
 	PipelineState* m_pipelineState;
 	Viewport* m_viewport;
 	void* m_passConstant;
-
-	std::array<VSOut, 10> m_vsOutVertices;
-	std::array<PSInput, 10> m_psInVertices;
 };

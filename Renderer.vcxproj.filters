@@ -64,6 +64,9 @@
     <ClCompile Include="Renderer\core\texture.cpp">
       <Filter>core</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer\scene\boat.cpp">
+      <Filter>scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renderer\utils\timer.h">
@@ -119,6 +122,9 @@
     </ClInclude>
     <ClInclude Include="Renderer\math\bounding_box.h">
       <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\scene\boat.h">
+      <Filter>scene</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

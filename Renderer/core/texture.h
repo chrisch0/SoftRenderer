@@ -3,5 +3,8 @@
 
 class Texture
 {
+public:
+
+private:
 
 };

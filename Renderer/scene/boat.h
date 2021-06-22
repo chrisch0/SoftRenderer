@@ -4,13 +4,13 @@
 #include "core/camera.h"
 #include "core/model.h"
 
-struct CubeCB
+struct BoatCB
 {
 	float4x4 ViewMat;
 	float4x4 ProjMat;
 };
 
-class Cube : public Scene
+class Boat : public Scene
 {
 public:
 	virtual void InitScene(FrameBuffer* frameBuffer, Camera& camera) override;
@@ -19,11 +19,9 @@ public:
 	virtual void Release() override;
 
 private:
-	std::vector<Vertex> m_vertexBuffer;
-	std::vector<uint32_t> m_indexBuffer;
-	CubeCB m_passCB;
+	BoatCB m_passCB;
 	FrameBuffer* m_frameBuffer;
 	DepthBuffer* m_depthBuffer;
 	PipelineState m_pipelineState;
-	Model m_cubeModel;
+	Model m_boatModel;
 };

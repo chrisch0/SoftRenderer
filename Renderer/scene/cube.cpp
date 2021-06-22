@@ -20,6 +20,8 @@ Color CubePS(PSInput* psInput, void* cb)
 
 void Cube::InitScene(FrameBuffer* frameBuffer, Camera& camera)
 {
+	m_cubeModel.LoadFromOBJ("assets/cube_no_tex.obj");
+
 	Vertex v;
 	v.position = float3(-0.5f, -0.5f, -0.5f);
 	v.normal = float3(0.0f, 0.0f, -1.0f);
@@ -121,7 +123,9 @@ void Cube::InitScene(FrameBuffer* frameBuffer, Camera& camera)
 		20, 21, 22, 20, 22, 23
 	};
 
-	camera.SetPosition(float3(0.f, 0.0f, -1.5f));
+	//camera.SetPosition(float3(0.f, 0.0f, -1.5f));
+	camera.SetTarget(m_cubeModel.GetCenter());
+	camera.SetPosition(m_cubeModel.GetCenter() + float3(m_cubeModel.GetRadius()));
 
 	m_pipelineState.VS = CubeVS;
 	m_pipelineState.PS = CubePS;
@@ -150,9 +154,10 @@ void Cube::Draw(GraphicsContext& context)
 	context.SetConstantBuffer(&m_passCB);
 	context.SetRenderTarget(m_frameBuffer, m_depthBuffer);
 	context.SetPipelineState(&m_pipelineState);
-	context.SetVertexBuffer(m_vertexBuffer.data());
+	/*context.SetVertexBuffer(m_vertexBuffer.data());
 	context.SetIndexBuffer(m_indexBuffer.data());
-	context.DrawIndexed(36, 0, 0);
+	context.DrawIndexed(36, 0, 0);*/
+	m_cubeModel.Draw(context);
 }
 
 void Cube::Release()

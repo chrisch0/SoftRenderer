@@ -21,17 +21,20 @@ bool DepthTest(eDepthFunc testFunc, float curDepth, float prevDepth);
 void GraphicsContext::DrawIndexed(uint32_t indexCount, uint32_t startIndexLocation /* = 0 */, uint32_t baseVertexLocation /* = 0 */)
 {
 	auto num_faces = indexCount / 3;
-	for (uint32_t face_idx = 0; face_idx < num_faces; ++face_idx)
+#pragma omp parallel for schedule(dynamic)
+	for (int face_idx = 0; face_idx < num_faces; ++face_idx)
 	{
+		std::array<VSOut, 10> vs_out_vertices;
+		std::array<PSInput, 10> ps_in_vertices;
 		// vertex shader stage
 		for (int i = 0; i < 3; ++i)
 		{
 			VSInput* vs_input = &m_vertexBuffer[baseVertexLocation + m_indexBuffer[startIndexLocation + face_idx * 3 + i]];
-			m_vsOutVertices[i] = m_pipelineState->VS(vs_input, m_passConstant);
+			vs_out_vertices[i] = m_pipelineState->VS(vs_input, m_passConstant);
 		}
 
 		// triangle clipping
-		int num_ps_in = TriangleClipping(m_vsOutVertices, m_psInVertices);
+		int num_ps_in = TriangleClipping(vs_out_vertices, ps_in_vertices);
 
 		for (int v_idx = 0; v_idx < num_ps_in - 2; ++v_idx)
 		{
@@ -40,19 +43,19 @@ void GraphicsContext::DrawIndexed(uint32_t indexCount, uint32_t startIndexLocati
 			int idx2 = v_idx + 2;
 
 			// triangle assembly
-			m_psInVertices[0] = m_vsOutVertices[idx0];
-			m_psInVertices[1] = m_vsOutVertices[idx1];
-			m_psInVertices[2] = m_vsOutVertices[idx2];
+			ps_in_vertices[0] = vs_out_vertices[idx0];
+			ps_in_vertices[1] = vs_out_vertices[idx1];
+			ps_in_vertices[2] = vs_out_vertices[idx2];
 
 			// rasterize triangle
 			// perspective division
-			static float3 ndc_coords[3];
-			static float recip_w[3];
+			float3 ndc_coords[3];
+			float recip_w[3];
 			for (int i = 0; i < 3; ++i)
 			{
-				recip_w[i] = 1.f / m_psInVertices[i].sv_position.w;
-				m_psInVertices[i].sv_position = m_psInVertices[i].sv_position / m_psInVertices[i].sv_position.w;
-				ndc_coords[i] = float3(m_psInVertices[i].sv_position);
+				recip_w[i] = 1.f / ps_in_vertices[i].sv_position.w;
+				ps_in_vertices[i].sv_position = ps_in_vertices[i].sv_position / ps_in_vertices[i].sv_position.w;
+				ndc_coords[i] = float3(ps_in_vertices[i].sv_position);
 			}
 
 			// face culling
@@ -70,15 +73,15 @@ void GraphicsContext::DrawIndexed(uint32_t indexCount, uint32_t startIndexLocati
 			}
 
 			// viewport mapping
-			static float2 screen_coords[3];
-			static float screen_depth[3];
+			float2 screen_coords[3];
+			float screen_depth[3];
 			for (int i = 0; i < 3; ++i)
 			{
-				float3 ndc_coord = float3(m_psInVertices[i].sv_position);
+				float3 ndc_coord = float3(ps_in_vertices[i].sv_position);
 				float x = (ndc_coord.x + 1.f) * 0.5f * (float)m_frameBuffer->GetWidth() + m_viewport->TopLeftX;
 				float y = (1.f - ndc_coord.y) * 0.5f * (float)m_frameBuffer->GetHeight() + m_viewport->TopLeftY;
 				float z = m_viewport->MinDepth + ndc_coord.z * (m_viewport->MaxDepth - m_viewport->MinDepth);
-				m_psInVertices[i].sv_position = float4(x, y, z, 1.0f);
+				ps_in_vertices[i].sv_position = float4(x, y, z, 1.0f);
 				screen_coords[i] = float2(x, y);
 				screen_depth[i] = z;
 			}
@@ -96,7 +99,7 @@ void GraphicsContext::DrawIndexed(uint32_t indexCount, uint32_t startIndexLocati
 			y_max = std::min(y_max, m_frameBuffer->GetHeight());
 
 			// TODO: add wire frame rasterizer mode
-	#pragma omp parallel for schedule(dynamic)
+	//#pragma omp parallel for schedule(dynamic)
 			for (int x = x_min; x < x_max; ++x)
 			{
 				for (int y = y_min; y < y_max; ++y)
@@ -141,9 +144,9 @@ void GraphicsContext::DrawIndexed(uint32_t indexCount, uint32_t startIndexLocati
 						// interpolate vertex attributes
 						PSInput pixel_attri;
 						{
-							float* a0 = (float*)&(m_psInVertices[0]);
-							float* a1 = (float*)&(m_psInVertices[1]);
-							float* a2 = (float*)&(m_psInVertices[2]);
+							float* a0 = (float*)&(ps_in_vertices[0]);
+							float* a1 = (float*)&(ps_in_vertices[1]);
+							float* a2 = (float*)&(ps_in_vertices[2]);
 							float* r = (float*)&pixel_attri;
 							float weight0 = recip_w[0] * weights.x;
 							float weight1 = recip_w[1] * weights.y;

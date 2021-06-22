@@ -143,6 +143,7 @@
     <ClCompile Include="Renderer\math\functions.cpp" />
     <ClCompile Include="Renderer\math\matrix.cpp" />
     <ClCompile Include="Renderer\math\vec.cpp" />
+    <ClCompile Include="Renderer\scene\boat.cpp" />
     <ClCompile Include="Renderer\scene\cube.cpp" />
     <ClCompile Include="Renderer\scene\fullscreen_quad.cpp" />
     <ClCompile Include="Renderer\scene\triangle.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="Renderer\math\math.h" />
     <ClInclude Include="Renderer\math\matrix.h" />
     <ClInclude Include="Renderer\math\vec.h" />
+    <ClInclude Include="Renderer\scene\boat.h" />
     <ClInclude Include="Renderer\scene\cube.h" />
     <ClInclude Include="Renderer\scene\fullscreen_quad.h" />
     <ClInclude Include="Renderer\scene\scene.h" />
