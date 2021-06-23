@@ -81,6 +81,8 @@ public:
 		m_buffer[index] = std::clamp(color.x, 0.0f, 1.0f) * 255;
 		m_buffer[index + 1] = std::clamp(color.y, 0.0f, 1.0f) * 255;
 		m_buffer[index + 2] = std::clamp(color.z, 0.0f, 1.0f) * 255;
+		if (NumChannels == 4)
+			m_buffer[index + 3] = std::clamp(color.w, 0.0f, 1.0f) * 255;
 	}
 	void SetColorBGR(int x, int y, Color color)
 	{
@@ -91,7 +93,8 @@ public:
 		m_buffer[index] = std::clamp(color.z, 0.0f, 1.0f) * 255;
 		m_buffer[index + 1] = std::clamp(color.y, 0.0f, 1.0f) * 255;
 		m_buffer[index + 2] = std::clamp(color.x, 0.0f, 1.0f) * 255;
-		m_buffer[index + 3] = std::clamp(color.w, 0.0f, 1.0f) * 255;
+		if (NumChannels == 4)
+			m_buffer[index + 3] = std::clamp(color.w, 0.0f, 1.0f) * 255;
 	}
 	void SetBuffer(T* buffer) 
 	{

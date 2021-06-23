@@ -2,9 +2,9 @@
 #include "core/shader_functions.h"
 #include "core/renderer.h"
 
-VSOut TriangleVS(VSInput* vsInput, void* cb)
+VSOut TriangleVS(VSInput* vsInput, void** cb)
 {
-	TriangleCB* passCB = (TriangleCB*)cb;
+	TriangleCB* passCB = (TriangleCB*)cb[0];
 	VSOut vs_out;
 	float4 view_pos = Mul(float4(vsInput->position, 1.0f), passCB->ViewMat);
 	vs_out.sv_position = Mul(view_pos, passCB->ProjMat);
@@ -12,7 +12,7 @@ VSOut TriangleVS(VSInput* vsInput, void* cb)
 	return vs_out;
 }
 
-Color TrianglePS(PSInput* psInput, void* cb)
+Color TrianglePS(PSInput* psInput, void** cb)
 {
 	float p = (std::fmod(psInput->uv.x * 10.f, 1.0) > 0.5) ^ (std::fmod(psInput->uv.y * 10.f, 1.0) < 0.5);
 	float2 col = psInput->uv * p;
@@ -55,7 +55,7 @@ void Triangle::Update(const Timer& timer, const IO& io, Camera& camera)
 void Triangle::Draw(GraphicsContext& context)
 {
 	context.ClearColor(m_frameBuffer, Color(0.2, 0.2, 0.2, 1.0));
-	context.SetConstantBuffer(&m_passCB);
+	context.SetConstantBuffer(0, &m_passCB);
 	context.SetRenderTarget(m_frameBuffer);
 	context.SetPipelineState(&m_pipelineState);
 	context.SetVertexBuffer(m_vertexBuffer.data());

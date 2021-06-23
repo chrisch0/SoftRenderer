@@ -3,7 +3,7 @@
 #include "core/renderer.h"
 #include "core/shader_functions.h"
 
-VSOut FullScreenQuadVS(VSInput* vsInput, void* cb)
+VSOut FullScreenQuadVS(VSInput* vsInput, void** cb)
 {
 	VSOut vsOut;
 	vsOut.sv_position = float4(vsInput->position, 1.0f);
@@ -14,9 +14,9 @@ VSOut FullScreenQuadVS(VSInput* vsInput, void* cb)
 	return vsOut;
 }
 
-Color FullScreenQuadPS(PSInput* psInput, void* cb)
+Color FullScreenQuadPS(PSInput* psInput, void** cb)
 {
-	FullScreenQuadCB* passCb = (FullScreenQuadCB*)cb;
+	FullScreenQuadCB* passCb = (FullScreenQuadCB*)cb[0];
 	float2 uv = psInput->uv;
 	float4 mouse = passCb->Mouse / float4(passCb->Resolution.x, passCb->Resolution.y, passCb->Resolution.x, passCb->Resolution.y);
 
@@ -82,7 +82,7 @@ void FullScreenQuad::Update(const Timer& timer, const IO& io, Camera& camera)
 void FullScreenQuad::Draw(GraphicsContext& context)
 {
 	context.ClearColor(m_frameBuffer, Color(0.0f, 0.0f, 0.0f, 0.0f));
-	context.SetConstantBuffer(&m_passCB);
+	context.SetConstantBuffer(0, &m_passCB);
 	context.SetRenderTarget(m_frameBuffer);
 	context.SetPipelineState(&m_pipelineState);
 	context.SetVertexBuffer(m_vertexBuffer.data());

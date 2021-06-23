@@ -126,5 +126,8 @@
     <ClInclude Include="Renderer\scene\boat.h">
       <Filter>scene</Filter>
     </ClInclude>
+    <ClInclude Include="Renderer\core\sampler.h">
+      <Filter>core</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

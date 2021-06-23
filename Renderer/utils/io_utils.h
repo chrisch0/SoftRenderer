@@ -3,6 +3,8 @@
 #include <cstring>
 #include <cctype>
 
+#define  TGA_HEADER_SIZE 18
+
 inline 
 bool IsLineEnd(char c)
 {

@@ -30,7 +30,7 @@ void GraphicsContext::DrawIndexed(uint32_t indexCount, uint32_t startIndexLocati
 		for (int i = 0; i < 3; ++i)
 		{
 			VSInput* vs_input = &m_vertexBuffer[baseVertexLocation + m_indexBuffer[startIndexLocation + face_idx * 3 + i]];
-			vs_out_vertices[i] = m_pipelineState->VS(vs_input, m_passConstant);
+			vs_out_vertices[i] = m_pipelineState->VS(vs_input, m_constantBuffer);
 		}
 
 		// triangle clipping
@@ -161,7 +161,7 @@ void GraphicsContext::DrawIndexed(uint32_t indexCount, uint32_t startIndexLocati
 						}
 						// TODO: multiple render targets
 						// pixel shader stage
-						Color pixel_color = m_pipelineState->PS(&pixel_attri, m_passConstant);
+						Color pixel_color = m_pipelineState->PS(&pixel_attri, m_constantBuffer);
 
 						// TODO:: add blend
 						m_frameBuffer->SetColorBGR(x, y, pixel_color);

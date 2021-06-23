@@ -124,7 +124,7 @@ void Model::LoadFromOBJ(const std::string& filename)
 				{
 					iter = cmd_end;
 					SkipSpaces(data_buffer, iter);
-					SetMaterial(data_buffer, iter, line_end, m_pMaterials, cur_mesh);
+					//SetMaterial(data_buffer, iter, line_end, m_pMaterials, cur_mesh);
 				}
 			}
 			break;
@@ -226,6 +226,16 @@ void Model::Draw(GraphicsContext& context)
 		Mesh* pMesh = mesh_iter.second;
 		context.DrawIndexed(pMesh->IndexCount, pMesh->IndexStartLocation, pMesh->VertexStartLocation);
 	}
+}
+
+float3 GetColorRGB(const std::string& dataBuffer, size_t& idx, size_t end)
+{
+	float3 color;
+	color.x = std::atof(&dataBuffer[idx]); SkipSpaces(dataBuffer, idx);	SkipToken(dataBuffer, idx, end);
+	color.y = std::atof(&dataBuffer[idx]); SkipSpaces(dataBuffer, idx); SkipToken(dataBuffer, idx, end);
+	color.z = std::atof(&dataBuffer[idx]);
+	
+	return color;
 }
 
 void GetVertexInfo(const std::string& dataBuffer, size_t& idx, size_t end, std::vector<float3>& positions, std::vector<float3>& colors, std::vector<float2>& texCoords, std::vector<float3>& normals)
@@ -372,18 +382,18 @@ void SetMaterial(const std::string& dataBuffer, size_t& idx, size_t end, std::un
 	if (pCurMesh->pMat != nullptr && pCurMesh->pMat->Name == mat_name)
 		return;
 
-	auto mat_pair = matMap.find(mat_name);
-	if (mat_pair == matMap.end())
+	auto mat_iter = matMap.find(mat_name);
+	if (mat_iter == matMap.end())
 	{
 		std::cout << "fail to locate material" << std::endl;
 	}
 	else
 	{
-		pCurMesh->pMat = mat_pair->second;
+		pCurMesh->pMat = mat_iter->second;
 	}
 }
 
-void GetMaterialLib(const std::string& dataBuffer, size_t& idx, size_t end, const std::string& path, std::unordered_map<std::string, Material*>& matMap)
+void GetMaterialLib(const std::string& dataBuffer, size_t& idx, size_t end, const std::string& path, std::unordered_map<std::string, Material*>& matMap, Material*& pCurMat)
 {
 	auto mat_end = idx;
 	while (mat_end < end && dataBuffer[mat_end] != ' ')
@@ -413,6 +423,110 @@ void GetMaterialLib(const std::string& dataBuffer, size_t& idx, size_t end, cons
 	{
 		size_t iter = line_beg;
 
+		switch (mat_data[iter])
+		{
+		// get material color
+		case 'k':
+		case 'K':
+		{
+			++iter;
+			if (mat_data[iter] == 'a')
+			{
+				++iter;
+				pCurMat->Ambient = GetColorRGB(mat_data, iter, line_end);
+			}
+			else if (mat_data[iter] == 'd')
+			{
+				++iter;
+				pCurMat->Diffuse = GetColorRGB(mat_data, iter, line_end);
+			}
+			else if (mat_data[iter] == 's')
+			{
+				++iter;
+				pCurMat->Specular = GetColorRGB(mat_data, iter, line_end);
+			}
+			else if (mat_data[iter] == 'e')
+			{
+				++iter;
+				pCurMat->Emissive = GetColorRGB(mat_data, iter, line_end);
+			}
+		}
+		break;
+
+		// get material transmission color
+		case 'T':
+		{
+			++iter;
+			if (mat_data[iter] == 'f')
+			{
+				++iter;
+				pCurMat->Transparent = GetColorRGB(mat_data, iter, line_end);
+			}
+			else if (mat_data[iter] == 'r')
+			{
+				++iter;
+				pCurMat->Transparent.w = 1.0f - std::atof(&mat_data[iter]);
+			}
+		}
+		break;
+
+		case 'd':
+		{
+
+		}
+		break;
+
+		case 'N':
+		case 'n':
+		{
+			++iter;
+			// get specular exponent
+			if (mat_data[iter] == 's')
+			{
+				++iter;
+				pCurMat->Shineness = std::atof(&mat_data[iter]);
+			}
+			// get index of refraction
+			else if (mat_data[iter] == 'i')
+			{
+				++iter;
+				pCurMat->IndexOfRefraction = std::atof(&mat_data[iter]);
+			}
+			// create new material
+			else if (mat_data[iter] == 'e')
+			{
+				SkipToken(mat_data, iter, line_end);
+				SkipSpaces(mat_data, iter);
+				auto name_end = iter;
+				SkipToken(mat_data, name_end, line_end);
+				std::string mat_name(&mat_data[iter], name_end - line_end);
+				if (mat_name != "")
+				{
+					auto mat_iter = matMap.find(mat_name);
+					if (mat_iter == matMap.end())
+					{
+						Material* mat = new Material(mat_name);
+						pCurMat = mat;
+						matMap.insert({ mat_name, mat });
+					}
+					else
+					{
+						pCurMat = mat_iter->second;
+					}
+				}
+			}
+		}
+		break;
+
+		// Texture
+		case 'm':
+		case 'b':
+		case 'r':
+		{
+
+		}
+		break;
+		}
 
 		line_beg = 1 + (IsLineEnd(mat_data[line_beg]) ? line_beg : line_end);
 		line_end = FindLineEnd(mat_data, line_beg);

@@ -2,9 +2,9 @@
 #include "core/shader_functions.h"
 #include "core/renderer.h"
 
-VSOut CubeVS(VSInput* vsInput, void* cb)
+VSOut CubeVS(VSInput* vsInput, void** cb)
 {
-	CubeCB* passCB = (CubeCB*)cb;
+	CubeCB* passCB = (CubeCB*)cb[0];
 	VSOut vs_out;
 	float4 view_pos = Mul(float4(vsInput->position, 1.0f), passCB->ViewMat);
 	vs_out.sv_position = Mul(view_pos, passCB->ProjMat);
@@ -12,7 +12,7 @@ VSOut CubeVS(VSInput* vsInput, void* cb)
 	return vs_out;
 }
 
-Color CubePS(PSInput* psInput, void* cb)
+Color CubePS(PSInput* psInput, void** cb)
 {
 	float p = (std::fmod(psInput->uv.x * 10.f, 1.0) > 0.5) ^ (std::fmod(psInput->uv.y * 10.f, 1.0) < 0.5);
 	return Color(p, p, p, 1.0);
@@ -151,7 +151,7 @@ void Cube::Draw(GraphicsContext& context)
 {
 	context.ClearColor(m_frameBuffer, Color(0.2, 0.2, 0.2, 1.0));
 	context.ClearDepth(m_depthBuffer, 1.0f);
-	context.SetConstantBuffer(&m_passCB);
+	context.SetConstantBuffer(0, &m_passCB);
 	context.SetRenderTarget(m_frameBuffer, m_depthBuffer);
 	context.SetPipelineState(&m_pipelineState);
 	/*context.SetVertexBuffer(m_vertexBuffer.data());

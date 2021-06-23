@@ -2,9 +2,9 @@
 #include "core/shader_functions.h"
 #include "core/renderer.h"
 
-VSOut BoatVS(VSInput* vsInput, void* cb)
+VSOut BoatVS(VSInput* vsInput, void** cb)
 {
-	BoatCB* passCB = (BoatCB*)cb;
+	BoatCB* passCB = (BoatCB*)cb[0];
 	VSOut vs_out;
 	float4 view_pos = Mul(float4(vsInput->position, 1.0f), passCB->ViewMat);
 	vs_out.sv_position = Mul(view_pos, passCB->ProjMat);
@@ -12,7 +12,7 @@ VSOut BoatVS(VSInput* vsInput, void* cb)
 	return vs_out;
 }
 
-Color BoatPS(PSInput* psInput, void* cb)
+Color BoatPS(PSInput* psInput, void** cb)
 {
 	return Color(1.0, 1.0, 1.0, 1.0);
 }
@@ -47,7 +47,7 @@ void Boat::Draw(GraphicsContext& context)
 {
 	context.ClearColor(m_frameBuffer, Color(0.2, 0.2, 0.2, 1.0));
 	context.ClearDepth(m_depthBuffer, 1.0f);
-	context.SetConstantBuffer(&m_passCB);
+	context.SetConstantBuffer(0, &m_passCB);
 	context.SetRenderTarget(m_frameBuffer, m_depthBuffer); 
 	context.SetPipelineState(&m_pipelineState);
 	m_boatModel.Draw(context);

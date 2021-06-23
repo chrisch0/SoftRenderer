@@ -20,6 +20,13 @@ struct Material
 	Material() : Name("Default"), pAlbedoMap(nullptr), pSpecularMap(nullptr) {}
 	~Material();
 	std::string Name;
+	float3 Ambient;
+	float3 Diffuse;
+	float3 Specular;
+	float3 Emissive;
+	float Shineness;
+	float IndexOfRefraction;
+	float4 Transparent;
 	Texture* pAlbedoMap;
 	Texture* pSpecularMap;
 

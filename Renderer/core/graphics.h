@@ -36,8 +36,8 @@ struct ConstantBuffer
 using VSOut = PSInput;
 using Vertex = VSInput;
 
-using VertexShader = std::function<VSOut(VSInput*, void*)>;
-using PixelShader = std::function<Color(PSInput*, void*)>;
+using VertexShader = std::function<VSOut(VSInput*, void**)>;
+using PixelShader = std::function<Color(PSInput*, void**)>;
 
 struct Viewport
 {
@@ -143,9 +143,9 @@ public:
 	{
 		m_indexBuffer = indexBuffer;
 	}
-	void SetConstantBuffer(void* cb)
+	void SetConstantBuffer(size_t slot, void* cb)
 	{
-		m_passConstant = cb;
+		m_constantBuffer[slot] = cb;
 	}
 	void SetViewport(Viewport* viewport)
 	{
@@ -166,5 +166,5 @@ private:
 	uint32_t* m_indexBuffer;
 	PipelineState* m_pipelineState;
 	Viewport* m_viewport;
-	void* m_passConstant;
+	void* m_constantBuffer[10];
 };
