@@ -12,7 +12,7 @@ VSOut CubeVS(VSInput* vsInput, void** cb)
 	return vs_out;
 }
 
-Color CubePS(PSInput* psInput, void** cb)
+Color CubePS(PSInput* psInput, void** cb, Texture** texs, SamplerState** samplers)
 {
 	float p = (std::fmod(psInput->uv.x * 10.f, 1.0) > 0.5) ^ (std::fmod(psInput->uv.y * 10.f, 1.0) < 0.5);
 	return Color(p, p, p, 1.0);

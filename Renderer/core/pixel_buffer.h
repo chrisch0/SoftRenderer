@@ -45,8 +45,17 @@ public:
 	const int GetWidth() const { return m_width; }
 	const int GetHeight() const { return m_height; }
 	const size_t GetBufferSize() const { return m_bufferSize; }
-	void SetWidth(int width) { m_width = width; }
-	void SetHeight(int height) { m_height = height; }
+	void SetWidth(int width) 
+	{ 
+		m_width = width; 
+		m_bufferSize = m_width * m_height * NumChannels; 
+	}
+	
+	void SetHeight(int height) 
+	{
+		m_height = height; 
+		m_bufferSize = m_width * m_height * NumChannels;
+	}
 
 	T GetValue(size_t idx)
 	{

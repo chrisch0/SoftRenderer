@@ -118,9 +118,9 @@ void Camera::UpdateViewMatrix()
 	m_right = Normalize(m_right);
 	m_up = Cross(m_forward, m_right);
 
-	float x30 = -(m_position * m_right);
-	float x31 = -(m_position * m_up);
-	float x32 = -(m_position * m_forward);
+	float x30 = -(Dot(m_position, m_right));
+	float x31 = -(Dot(m_position, m_up));
+	float x32 = -(Dot(m_position, m_forward));
 	m_viewMatrix.SetCol(0, m_right, x30);
 	m_viewMatrix.SetCol(1, m_up, x31);
 	m_viewMatrix.SetCol(2, m_forward, x32);

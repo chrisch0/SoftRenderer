@@ -12,7 +12,7 @@ VSOut BoatVS(VSInput* vsInput, void** cb)
 	return vs_out;
 }
 
-Color BoatPS(PSInput* psInput, void** cb)
+Color BoatPS(PSInput* psInput, void** cb, Texture** texs, SamplerState** samplers)
 {
 	return Color(1.0, 1.0, 1.0, 1.0);
 }

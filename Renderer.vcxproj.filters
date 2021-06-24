@@ -67,6 +67,9 @@
     <ClCompile Include="Renderer\scene\boat.cpp">
       <Filter>scene</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer\scene\textured_board.cpp">
+      <Filter>scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renderer\utils\timer.h">
@@ -128,6 +131,9 @@
     </ClInclude>
     <ClInclude Include="Renderer\core\sampler.h">
       <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\scene\textured_board.h">
+      <Filter>scene</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

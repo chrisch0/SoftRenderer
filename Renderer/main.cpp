@@ -3,6 +3,7 @@
 #include "scene/triangle.h"
 #include "scene/cube.h"
 #include "scene/boat.h"
+#include "scene/textured_board.h"
 #include "core/model.h"
 
 int main(int argc, const char* argv[])
@@ -14,7 +15,8 @@ int main(int argc, const char* argv[])
 	Triangle triangle;
 	Cube cube;
 	Boat boat;
-	renderer.Initialize(&boat);
+	TexturedBoard textured_board;
+	renderer.Initialize(&textured_board);
 	renderer.InitScene();
 	renderer.MainLoop();
 	return 0;

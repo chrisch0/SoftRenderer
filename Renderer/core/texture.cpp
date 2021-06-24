@@ -6,6 +6,9 @@
 
 void ImageFlipH(Texture* texture);
 void ImageFlipV(Texture* texture);
+float ResolveTexCoord(eAddressMode addressMode, float x);
+float2 ResolveTexCoord(eAddressMode addressModeU, eAddressMode addressModeV, const float2& uv);
+int Warp(int x, int dim);
 
 Texture::Texture() : m_width(0), m_height(0), m_channels(0), m_buffer(nullptr), m_size(0)
 {
@@ -23,7 +26,7 @@ Texture::~Texture()
 void Texture::LoadFromTGA(const std::string& path)
 {
 	int width, height, channels;
-	int is_rle, flip_h, flip_v;
+	int is_rle, flip_h, origin_left_upper;
 	std::ifstream fs;
 	fs.open(path, std::ios::binary);
 	if (!fs.is_open())
@@ -54,7 +57,7 @@ void Texture::LoadFromTGA(const std::string& path)
 
 		imgdesc = header[17];
 		flip_h = imgdesc & 0x10;
-		flip_v = imgdesc & 0x20;
+		origin_left_upper = imgdesc & 0x20;
 	}
 
 	Create(width, height, channels);
@@ -101,7 +104,7 @@ void Texture::LoadFromTGA(const std::string& path)
 	{
 		ImageFlipH(this);
 	}
-	if (flip_v)
+	if (!origin_left_upper)
 	{
 		ImageFlipV(this);
 	}
@@ -175,12 +178,40 @@ void Texture::SetColor(int x, int y, const float4& col)
 		m_buffer[index + 3] = std::clamp(col.w, 0.0f, 1.0f) * 255;
 }
 
+Color Texture::SampleLevel(const SamplerState& sampler, const float2& uv, int level)
+{
+	float2 r_uv = ResolveTexCoord(sampler.AddressU, sampler.AddressV, uv);
+	if (r_uv >= float2(0.0f, 0.0f) && r_uv <= float2(1.0f, 1.0f))
+	{
+		float2 xy = uv * float2(m_width, m_height);
+		int x0 = Warp((int)(xy.x - 0.5f), m_width);
+		int y0 = Warp((int)(xy.y - 0.5f), m_height);
+		int x1 = Warp((int)(xy.x - 0.5f) + 1, m_width);
+		int y1 = Warp((int)(xy.y - 0.5f) + 1, m_height);
+		float alpha = std::fmod(xy.x - 0.5f, 1.0);
+		float beta = std::fmod(xy.y - 0.5f, 1.0);
+		Color c00 = GetColor(x0, y0);
+		Color c01 = GetColor(x0, y1);
+		Color c10 = GetColor(x1, y0);
+		Color c11 = GetColor(x1, y1);
+		Color c_t = c00 * (1.0f - alpha) + c10 * alpha;
+		Color c_b = c01 * (1.0f - alpha) + c11 * alpha;
+		return c_t * (1.0f - beta) + c_b * beta;
+	}
+	else
+	{
+		return sampler.BorderColor;
+	}
+}
+
 void ImageFlipH(Texture* texture)
 {
 	int half_width = texture->GetWidth() / 2;
 	int x, y, k;
-	for (y = 0; y < texture->GetHeight(); y++) {
-		for (x = 0; x < half_width; x++) {
+	for (y = 0; y < texture->GetHeight(); y++) 
+	{
+		for (x = 0; x < half_width; x++) 
+		{
 			int flipped_x = texture->GetWidth() - 1 - x;
 			auto pixel1 = texture->GetRawValue(x, y);
 			auto pixel2 = texture->GetRawValue(flipped_x, y);
@@ -198,9 +229,11 @@ void ImageFlipV(Texture* texture)
 {
 	int half_height = texture->GetHeight() / 2;
 	int x, y, k;
-	for (y = 0; y < half_height; y++) {
-		for (x = 0; x < texture->GetWidth(); x++) {
-			int flipped_y = texture->GetHeight - 1 - y;
+	for (y = 0; y < half_height; y++) 
+	{
+		for (x = 0; x < texture->GetWidth(); x++) 
+		{
+			int flipped_y = texture->GetHeight() - 1 - y;
 			auto pixel1 = texture->GetRawValue(x, y);
 			auto pixel2 = texture->GetRawValue(x, flipped_y);
 			for (k = 0; k < texture->GetChannels(); k++) 
@@ -210,4 +243,59 @@ void ImageFlipV(Texture* texture)
 			}
 		}
 	}
+}
+
+float ResolveTexCoord(eAddressMode addressMode, float x)
+{
+	if (x >= 0.0f && x <= 1.0f)
+		return x;
+
+	float t;
+	switch (addressMode)
+	{
+	case  Address_Mode_Border:
+	{
+		if (x > 1.0f || x < 0.0f)
+			t = -1.0f;
+	}
+	break;
+	case Address_Mode_Clamp:
+	{
+		t = std::clamp(x, 0.0f, 1.0f);
+	}
+	break;
+	case Address_Mode_Mirror:
+	{
+		t = std::fmodf(x, 2.0f);
+		t = t <= 1.0f ? t : 2.0f - t;
+	}
+	break;
+	case Address_Mode_Mirror_once:
+	{
+		t = std::clamp(std::fabs(x), 0.0f, 1.0f);
+	}
+		break;
+	case Address_Mode_Warp:
+	{
+		t = std::fmodf(x, 1.0f);
+	}
+		break;
+	}
+	return t;
+}
+
+float2 ResolveTexCoord(eAddressMode addressModeU, eAddressMode addressModeV, const float2& uv)
+{
+	float2 r_uv;
+	r_uv.x = ResolveTexCoord(addressModeU, uv.x);
+	r_uv.y = ResolveTexCoord(addressModeV, uv.y);
+	return r_uv;
+}
+
+int Warp(int x, int dim)
+{
+	if (x >= 0 && x < dim)
+		return x;
+	x = x % dim;
+	return x > 0 ? x : dim + x;
 }

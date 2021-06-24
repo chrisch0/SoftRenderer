@@ -57,9 +57,9 @@ public:
 		return *this;
 	}
 
-	double operator*(const Vec2<T>& rhs) const
+	Vec2<T> operator*(const Vec2<T>& s) const
 	{
-		return x * rhs.x + y * rhs.y;
+		return Vec2<T>(x * s.x, y * s.y);
 	}
 
 	Vec2<T> operator/(const T& s) const
@@ -79,8 +79,31 @@ public:
 
 	T operator[](uint8_t idx)
 	{
-
+		//assert(idx < 2);
+		return this[idx];
 	}
+
+	bool operator<(const Vec2<T>& v) const
+	{
+		return x < v.x && x < v.y;
+	}
+
+	bool operator>(const Vec2<T>& v) const
+	{
+		return v < *this;
+	}
+
+	bool operator<=(const Vec2<T>& v) const 
+	{
+		return !(*this > v);
+	}
+
+	bool operator>=(const Vec2<T>& v) const
+	{
+		return !(*this < v);
+	}
+
+	
 
 	T LengthSquared() const { return x * x + y * y; }
 	T Length() const { return std::sqrt(x * x + y * y); }
@@ -143,11 +166,6 @@ public:
 	{
 		x *= s; y *= s; z *= s;
 		return *this;
-	}
-
-	double operator*(const Vec3<T>& rhs) const
-	{
-		return x * rhs.x + y * rhs.y + z * rhs.z;
 	}
 
 	Vec3<T> operator/(const T s) const
@@ -301,6 +319,18 @@ template <typename T>
 inline Vec3<T> operator+(const T s, const Vec3<T>& rhs)
 {
 	return rhs + s;
+}
+
+template <typename T>
+T Dot(const Vec2<T>& v1, const Vec2<T>& v2)
+{
+	return v1.x * v2.x + v1.y * v2.y;
+}
+
+template <typename T>
+T Dot(const Vec3<T>& v1, const Vec3<T>& v2)
+{
+	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 }
 
 template <typename T>

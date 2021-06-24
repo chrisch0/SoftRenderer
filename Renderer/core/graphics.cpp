@@ -64,7 +64,7 @@ void GraphicsContext::DrawIndexed(uint32_t indexCount, uint32_t startIndexLocati
 				auto v0 = ndc_coords[0];
 				auto v1 = ndc_coords[1];
 				auto v2 = ndc_coords[2];
-				float r = v0 * Cross(v1 - v0, v2 - v0);
+				float r = Dot(v0, Cross(v1 - v0, v2 - v0));
 
 				bool is_back_face = !(r < 0 ^ m_pipelineState->RasterizerState.FrontCounterClockWise);
 				bool is_culling = !(m_pipelineState->RasterizerState.CullMode == Cull_Mode_Back ^ is_back_face);
@@ -161,7 +161,7 @@ void GraphicsContext::DrawIndexed(uint32_t indexCount, uint32_t startIndexLocati
 						}
 						// TODO: multiple render targets
 						// pixel shader stage
-						Color pixel_color = m_pipelineState->PS(&pixel_attri, m_constantBuffer);
+						Color pixel_color = m_pipelineState->PS(&pixel_attri, m_constantBuffer, m_textureSlots, m_samplerSlots);
 
 						// TODO:: add blend
 						m_frameBuffer->SetColorBGR(x, y, pixel_color);

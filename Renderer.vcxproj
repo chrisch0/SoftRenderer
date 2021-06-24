@@ -146,6 +146,7 @@
     <ClCompile Include="Renderer\scene\boat.cpp" />
     <ClCompile Include="Renderer\scene\cube.cpp" />
     <ClCompile Include="Renderer\scene\fullscreen_quad.cpp" />
+    <ClCompile Include="Renderer\scene\textured_board.cpp" />
     <ClCompile Include="Renderer\scene\triangle.cpp" />
     <ClCompile Include="Renderer\utils\timer.cpp" />
   </ItemGroup>
@@ -167,6 +168,7 @@
     <ClInclude Include="Renderer\scene\cube.h" />
     <ClInclude Include="Renderer\scene\fullscreen_quad.h" />
     <ClInclude Include="Renderer\scene\scene.h" />
+    <ClInclude Include="Renderer\scene\textured_board.h" />
     <ClInclude Include="Renderer\scene\triangle.h" />
     <ClInclude Include="Renderer\utils\io_utils.h" />
     <ClInclude Include="Renderer\utils\timer.h" />

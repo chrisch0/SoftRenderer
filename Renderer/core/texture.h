@@ -19,7 +19,7 @@ public:
 	float4 GetColor(int x, int y);
 	void SetColor(int x, int y, const float4& col);
 
-	Color SampleLevel(const SamplerState& sampler, const float2 uv, int level);
+	Color SampleLevel(const SamplerState& sampler, const float2& uv, int level = 0);
 private:
 	std::string m_name;
 	int m_width;

@@ -3,6 +3,8 @@
 #include <array>
 #include "math/math.h"
 #include "pixel_buffer.h"
+#include "texture.h"
+#include "sampler.h"
 
 #define MAX_RENDER_TARGET 8
 
@@ -37,7 +39,7 @@ using VSOut = PSInput;
 using Vertex = VSInput;
 
 using VertexShader = std::function<VSOut(VSInput*, void**)>;
-using PixelShader = std::function<Color(PSInput*, void**)>;
+using PixelShader = std::function<Color(PSInput*, void**, Texture**, SamplerState**)>;
 
 struct Viewport
 {
@@ -147,6 +149,14 @@ public:
 	{
 		m_constantBuffer[slot] = cb;
 	}
+	void SetSRV(size_t slot, Texture* tex)
+	{
+		m_textureSlots[slot] = tex;
+	}
+	void SetSampler(size_t slot, SamplerState* sampler)
+	{
+		m_samplerSlots[slot] = sampler;
+	}
 	void SetViewport(Viewport* viewport)
 	{
 		m_viewport = viewport;
@@ -167,4 +177,6 @@ private:
 	PipelineState* m_pipelineState;
 	Viewport* m_viewport;
 	void* m_constantBuffer[10];
+	Texture* m_textureSlots[10];
+	SamplerState* m_samplerSlots[10];
 };
