@@ -5,8 +5,8 @@
 
 Material::~Material()
 {
-	if (pAlbedoMap != nullptr)
-		delete pAlbedoMap;
+	if (pAmbientMap != nullptr)
+		delete pAmbientMap;
 	if (pSpecularMap != nullptr)
 		delete pSpecularMap;
 }
@@ -43,6 +43,8 @@ Model::~Model()
 
 void GetVertexInfo(const std::string& dataBuffer, size_t& idx, size_t end, std::vector<float3>& positions, std::vector<float3>& colors, std::vector<float2>& texCoords, std::vector<float3>& normals);
 void GetFaceInfo(const std::string& dataBuffer, size_t& idx, size_t end, const std::string& filename, const std::string& meshName, Mesh*& pCurMesh, std::unordered_map<std::string, Mesh*>& meshMap, size_t& modelIndexCount, size_t numPositions, size_t numTexCoords, size_t numNormals);
+void SetMaterial(const std::string& dataBuffer, size_t& idx, size_t end, std::unordered_map<std::string, Material*>& matMap, Mesh* pCurMesh);
+void GetMaterialLib(const std::string& dataBuffer, size_t& idx, size_t end, const std::string& path, std::unordered_map<std::string, Material*>& matMap, Material*& pCurMat);
 
 void Model::LoadFromOBJ(const std::string& filename)
 {
@@ -124,7 +126,7 @@ void Model::LoadFromOBJ(const std::string& filename)
 				{
 					iter = cmd_end;
 					SkipSpaces(data_buffer, iter);
-					//SetMaterial(data_buffer, iter, line_end, m_pMaterials, cur_mesh);
+					SetMaterial(data_buffer, iter, line_end, m_pMaterials, cur_mesh);
 				}
 			}
 			break;
@@ -140,7 +142,7 @@ void Model::LoadFromOBJ(const std::string& filename)
 				{
 					iter = cmd_end;
 					SkipSpaces(data_buffer, iter);
-					
+					GetMaterialLib(data_buffer, iter, line_end, path, m_pMaterials, cur_mat);
 				}
 			}
 			break;
@@ -422,7 +424,7 @@ void GetMaterialLib(const std::string& dataBuffer, size_t& idx, size_t end, cons
 	while (line_beg < mat_data.size())
 	{
 		size_t iter = line_beg;
-
+		SkipToToken(mat_data, iter, line_end);
 		switch (mat_data[iter])
 		{
 		// get material color
@@ -499,7 +501,7 @@ void GetMaterialLib(const std::string& dataBuffer, size_t& idx, size_t end, cons
 				SkipSpaces(mat_data, iter);
 				auto name_end = iter;
 				SkipToken(mat_data, name_end, line_end);
-				std::string mat_name(&mat_data[iter], name_end - line_end);
+				std::string mat_name(&mat_data[iter], name_end - iter);
 				if (mat_name != "")
 				{
 					auto mat_iter = matMap.find(mat_name);
@@ -523,7 +525,47 @@ void GetMaterialLib(const std::string& dataBuffer, size_t& idx, size_t end, cons
 		case 'b':
 		case 'r':
 		{
-
+			auto cmd_end = iter;
+			while (cmd_end < line_end && mat_data[cmd_end] != ' ')
+				++cmd_end;
+			std::string cmd(&mat_data[iter], cmd_end - iter);
+			iter = cmd_end;
+			SkipSpaces(mat_data, iter);
+			auto file_path_end = iter;
+			while (file_path_end < line_end && (mat_data[file_path_end] != ' ' && !IsLineEnd(mat_data[file_path_end])))
+				++file_path_end;
+			std::string file_path(&mat_data[iter], file_path_end - iter);
+			// diffuse texture
+			if (cmd == "map_Kd")
+			{
+				if (pCurMat->pDiffuseMap != nullptr)
+					delete pCurMat->pDiffuseMap;
+				pCurMat->pDiffuseMap = new Texture(file_path);
+				pCurMat->pDiffuseMap->LoadFromTGA(path + file_path);
+			}
+			// ambient texture
+			else if (cmd == "map_Ka")
+			{
+				if (pCurMat->pAmbientMap != nullptr)
+					delete pCurMat->pAmbientMap;
+				pCurMat->pAmbientMap = new Texture(file_path);
+				pCurMat->pAmbientMap->LoadFromTGA(path + file_path);
+			}
+			// specular texture
+			else if (cmd == "map_Ks")
+			{
+				if (pCurMat->pSpecularMap != nullptr)
+					delete pCurMat->pSpecularMap;
+				pCurMat->pSpecularMap = new Texture(file_path);
+				pCurMat->pSpecularMap->LoadFromTGA(path + file_path);
+			}
+			else if (cmd == "map_bump")
+			{
+				if (pCurMat->pBumpMap1 != nullptr)
+					delete pCurMat->pBumpMap1;
+				pCurMat->pBumpMap1 = new Texture(file_path);
+				pCurMat->pBumpMap1->LoadFromTGA(path + file_path);
+			}
 		}
 		break;
 		}

@@ -42,6 +42,15 @@ void SkipToken(const std::string& data, size_t& begin, size_t end)
 }
 
 inline 
+void SkipToToken(const std::string& data, size_t& begin, size_t end)
+{
+	while (begin < end && data[begin] < 32)
+	{
+		++begin;
+	}
+}
+
+inline 
 bool IsNumeric(const std::string& data, size_t iter)
 {
 	return (data[iter] >= '0' && data[iter] <= '9') || data[iter] == '+' || data[iter] == '-';

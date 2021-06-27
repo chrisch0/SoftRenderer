@@ -7,6 +7,7 @@ class Texture
 {
 public:
 	Texture();	
+	Texture(const std::string& name);
 	~Texture();
 	void LoadFromTGA(const std::string& path);
 	void Create(int width, int height, int channels);

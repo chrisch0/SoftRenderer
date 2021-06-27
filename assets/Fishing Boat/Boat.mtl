@@ -12,8 +12,8 @@ newmtl boat
 	Kd 1.0000 1.0000 1.0000
 	Ks 1.0000 1.0000 1.0000
 	Ke 0.0000 0.0000 0.0000
-	map_Ka .\textures\Boat_diffuse.bmp
-	map_Kd .\textures\Boat_diffuse.bmp
-	map_Ks .\textures\Boat_specular.bmp
-	map_bump .\textures\Boat_normal.bmp
-	bump .\textures\Boat_normal.bmp
+	map_Ka .\textures\Boat_diffuse.tga
+	map_Kd .\textures\Boat_diffuse.tga
+	map_Ks .\textures\Boat_specular.tga
+	map_bump .\textures\Boat_normal.tga
+	bump .\textures\Boat_normal.tga

@@ -16,7 +16,7 @@ int main(int argc, const char* argv[])
 	Cube cube;
 	Boat boat;
 	TexturedBoard textured_board;
-	renderer.Initialize(&textured_board);
+	renderer.Initialize(&boat);
 	renderer.InitScene();
 	renderer.MainLoop();
 	return 0;

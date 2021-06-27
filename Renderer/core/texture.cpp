@@ -15,6 +15,11 @@ Texture::Texture() : m_width(0), m_height(0), m_channels(0), m_buffer(nullptr), 
 
 }
 
+Texture::Texture(const std::string& name) : m_name(name), m_width(0), m_height(0), m_channels(0), m_buffer(nullptr), m_size(0)
+{
+
+}
+
 Texture::~Texture()
 {
 	if (m_buffer != nullptr)

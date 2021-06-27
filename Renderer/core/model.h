@@ -16,8 +16,8 @@ struct Face
 
 struct Material
 {
-	Material(const std::string& name) : Name(name), pAlbedoMap(nullptr), pSpecularMap(nullptr) {}
-	Material() : Name("Default"), pAlbedoMap(nullptr), pSpecularMap(nullptr) {}
+	Material(const std::string& name) : Name(name) {}
+	Material() : Name("Default"){}
 	~Material();
 	std::string Name;
 	float3 Ambient;
@@ -27,9 +27,18 @@ struct Material
 	float Shineness;
 	float IndexOfRefraction;
 	float4 Transparent;
-	Texture* pAlbedoMap;
-	Texture* pSpecularMap;
-
+	Texture* pDiffuseMap = nullptr;
+	Texture* pAmbientMap = nullptr;
+	Texture* pSpecularMap = nullptr;
+	Texture* pOpacityMap = nullptr;
+	Texture* pEmissiveMap1 = nullptr;
+	Texture* pEmissiveMap2 = nullptr;
+	Texture* pBumpMap1 = nullptr;
+	Texture* pBumpMap2 = nullptr;
+	Texture* pNormalMap = nullptr;
+	Texture* pReflectionMap = nullptr;
+	Texture* pDisplaceTexture1 = nullptr;
+	Texture* pDisplaceTexture2 = nullptr;
 };
 
 struct Mesh
