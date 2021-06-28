@@ -76,3 +76,45 @@ std::ostream& operator<<(std::ostream& os, const Mat4x4& m)
 
 	return os;
 }
+
+Mat3x3::Mat3x3(float mat[3][3])
+{
+	std::memcpy(m, mat, 9 * sizeof(float));
+}
+
+Mat3x3::Mat3x3(
+	float x00, float x01, float x02, 
+	float x10, float x11, float x12, 
+	float x20, float x21, float x22)
+{
+	m[0][0] = x00;
+	m[0][1] = x01;
+	m[0][2] = x02;
+	m[1][0] = x10;
+	m[1][1] = x11;
+	m[1][2] = x12;
+	m[2][0] = x20;
+	m[2][1] = x21;
+	m[2][2] = x22;
+}
+
+Mat3x3::Mat3x3(const float3& v0, const float3& v1, const float3& v2)
+{
+	m[0][0] = v0.x;
+	m[0][1] = v0.y;
+	m[0][2] = v0.z;
+	m[1][0] = v1.x;
+	m[1][1] = v1.y;
+	m[1][2] = v1.z;
+	m[2][0] = v2.x;
+	m[2][1] = v2.y;
+	m[2][2] = v2.z;
+}
+
+float3 Mul(const float3& v, const float3x3& m)
+{
+	float3 x = float3(m.m[0][0], m.m[0][1], m.m[0][2]) * v.x;
+	float3 y = float3(m.m[1][0], m.m[1][1], m.m[1][2]) * v.y;
+	float3 z = float3(m.m[2][0], m.m[2][1], m.m[2][2]) * v.z;
+	return x + y + z;
+}

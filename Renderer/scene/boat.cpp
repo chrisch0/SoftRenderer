@@ -12,6 +12,7 @@ VSOut BoatVS(VSInput* vsInput, void** cb)
 	vs_out.normal = vsInput->normal;
 	vs_out.tangent = vsInput->tangent;
 	vs_out.bitangent = vsInput->bitangent;
+	vs_out.positionWS = vsInput->position;
 	return vs_out;
 }
 
@@ -21,7 +22,18 @@ Color BoatPS(PSInput* psInput, void** cb, Texture** texs, SamplerState** sampler
 	const Texture& ambient_tex = *texs[0];
 	const Texture& normal_tex = *texs[1];
 	float4 normal_sampled = normal_tex.SampleLevel(linear_sampler, psInput->uv);
-	float3 normal_t = float3(normal_sampled) * 2.0f - float3(1.0f);
+	float3 normal_ts = float3(normal_sampled) * 2.0f - float3(1.0f);
+	float3x3 TBN(psInput->tangent, psInput->bitangent, psInput->normal);
+	float3 normal_ws = Mul(normal_ts, TBN);
+
+	BoatCB* passCB = (BoatCB*)cb[0];
+	Color ambient_sampled = ambient_tex.SampleLevel(linear_sampler, psInput->uv);
+	float3 ambient = Mul(float3(ambient_sampled), passCB->LightColor);
+
+	float diff = Dot(psInput->normal, passCB->LightDir);
+	diff = diff < 0.0f ? 0.0 : diff;
+
+	//float3 view_dir = Normalize(passCB->ViewPos - psInput->)
 
 	return Color(psInput->normal, 1.0);
 	//return texs[0]->SampleLevel(*samplers[0], psInput->uv);

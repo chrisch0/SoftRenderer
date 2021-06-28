@@ -49,6 +49,32 @@ public:
 
 using float4x4 = Mat4x4;
 
+class Mat3x3
+{
+public:
+	float m[3][3];
+	Mat3x3()
+	{
+		m[0][0] = m[1][1] = m[2][2] = 1.f;
+		m[0][1] = m[0][2] =
+			m[1][0] = m[1][2] =
+			m[2][0] = m[2][1] = 0.f;
+	}
+	Mat3x3(float mat[3][3]);
+	Mat3x3(
+		float x00, float x01, float x02, 
+		float x10, float x11, float x12,
+		float x20, float x21, float x22
+	);
+	Mat3x3(const float3& v0, const float3& v1, const float3& v2);
+
+	~Mat3x3() {};
+};
+
+using float3x3 = Mat3x3;
+
 float4 Mul(const float4& v, const float4x4& m);
+
+float3 Mul(const float3& v, const float3x3& m);
 
 std::ostream& operator<<(std::ostream& os, const Mat4x4& m);

@@ -8,6 +8,10 @@ struct BoatCB
 {
 	float4x4 ViewMat;
 	float4x4 ProjMat;
+	float3 ViewPos;
+	float3 LightDir;
+	float3 LightColor;
+	float LightIntensity;
 };
 
 class Boat : public Scene

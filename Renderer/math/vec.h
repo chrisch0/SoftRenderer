@@ -322,6 +322,12 @@ inline Vec3<T> operator+(const T s, const Vec3<T>& rhs)
 }
 
 template <typename T>
+Vec3<T> Mul(const Vec3<T>& v1, const Vec3<T>& v2)
+{
+	return Vec3<T>(v1.x * v2.x, v1.y * v2.y, v1.z * v2.z);
+}
+
+template <typename T>
 T Dot(const Vec2<T>& v1, const Vec2<T>& v2)
 {
 	return v1.x * v2.x + v1.y * v2.y;
