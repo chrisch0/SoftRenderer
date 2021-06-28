@@ -91,3 +91,8 @@ void TexturedBoard::Release()
 {
 
 }
+
+void TexturedBoard::OnResize(int width, int height)
+{
+
+}

@@ -17,11 +17,12 @@ public:
 	virtual void Update(const Timer& timer, const IO& io, Camera& camera) override;
 	virtual void Draw(GraphicsContext& context) override;
 	virtual void Release() override;
-
+	virtual void OnResize(int width, int height) override;
 private:
 	BoatCB m_passCB;
 	FrameBuffer* m_frameBuffer;
-	DepthBuffer* m_depthBuffer;
+	DepthBuffer* m_depthBuffer = nullptr;
 	PipelineState m_pipelineState;
 	Model m_boatModel;
+	SamplerState m_linearSampler;
 };

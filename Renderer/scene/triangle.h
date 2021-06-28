@@ -16,6 +16,7 @@ public:
 	virtual void Update(const Timer& timer, const IO& io, Camera& camera) override;
 	virtual void Draw(GraphicsContext& context) override;
 	virtual void Release() override;
+	virtual void OnResize(int width, int height) override;
 
 private:
 	std::vector<Vertex> m_vertexBuffer;

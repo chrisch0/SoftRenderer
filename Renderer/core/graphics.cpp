@@ -8,6 +8,8 @@ void PSInput::LerpAssgin(const PSInput& v0, const PSInput& v1, float t)
 	positionWS = Lerp(v0.positionWS, v1.positionWS, t);
 	uv = Lerp(v0.uv, v1.uv, t);
 	color = Lerp(v0.color, v1.color, t);
+	tangent = Lerp(v0.tangent, v1.tangent, t);
+	bitangent = Lerp(v0.bitangent, v1.bitangent, t);
 }
 
 bool InsideClippingPlane(eHomoClippingPlane plane, const float4& coord);

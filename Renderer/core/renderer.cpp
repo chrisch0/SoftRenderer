@@ -251,6 +251,8 @@ void Renderer::OnResize()
 	m_viewport.MinDepth = 0.0f;
 	m_viewport.MaxDepth = 1.0f;
 	m_camera.SetAspect((float)m_clientWidth / (float)m_clientHeight);
+	if (m_scene)
+		m_scene->OnResize(m_clientWidth, m_clientHeight);
 }
 
 void Renderer::OnKeyDown(WPARAM key)

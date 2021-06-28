@@ -153,18 +153,92 @@ void Model::LoadFromOBJ(const std::string& filename)
 			line_end = FindLineEnd(data_buffer, line_beg);
 		}
 
-		// build mesh
-		BuildModel(positions, colors, texture_coords, normals);
+		// build tangents
+		std::vector<float3> smoothed_normals(positions.size(), float3(0.0, 0.0, 0.0));
+		std::vector<float3> tangents(positions.size(), float3(0.0, 0.0, 0.0));
+		std::vector<float3> bitangents(positions.size(), float3(0.0, 0.0, 0.0));
+		SmoothNormalAndBuildTangents(positions, texture_coords, normals, smoothed_normals, tangents, bitangents);
 
+		// build mesh
+		BuildModel(positions, colors, texture_coords, smoothed_normals, tangents, bitangents);
+
+	}
+
+
+}
+
+void Model::SmoothNormalAndBuildTangents(std::vector<float3>& positions, std::vector<float2>& texCoords, std::vector<float3>& normals, std::vector<float3>& smoothedNormals, std::vector<float3>& tangents, std::vector<float3>& bitangents)
+{
+	for (auto& mesh_pair : m_pMeshes)
+	{
+		Mesh* pMesh = mesh_pair.second;
+		for (Face* pFace : pMesh->pFaces)
+		{
+			std::vector<uint32_t> indices(pFace->Positions.size());
+			std::vector<float3> p(pFace->Positions.size());
+			std::vector<float2> uv(pFace->Positions.size());
+			std::vector<float3> n(pFace->Positions.size());
+			// init
+			for (int i = 0; i < pFace->Positions.size(); ++i)
+			{
+				indices[i] = pFace->Positions[i];
+				p[i] = positions[pFace->Positions[i]];
+				uv[i] = texCoords[pFace->TexCoords[i]];
+				n[i] = normals[pFace->Normals[i]];
+			}
+
+			for (int i = 0; i < pFace->Positions.size() - 2; ++i)
+			{
+				auto i0 = indices[0];
+				auto i1 = indices[i + 1];
+				auto i2 = indices[i + 2];
+				const auto& p0 = p[0];
+				const auto& p1 = p[i + 1];
+				const auto& p2 = p[i + 2];
+				const auto& uv0 = uv[0];
+				const auto& uv1 = uv[i + 1];
+				const auto& uv2 = uv[i + 2];
+
+				float3 e1 = p1 - p0, e2 = p2 - p0;
+				float x1 = uv1.x - uv0.x, x2 = uv2.x - uv0.x;
+				float y1 = uv2.y - uv0.y, y2 = uv2.y - uv0.y;
+
+				float r = 1.0f / (x1 * y2 - x2 * y1);
+				float3 t = (e1 * y2 - e2 * y1) * r;
+				float3 b = (e2 * x1 - e1 * x2) * r;
+
+				tangents[i0] += t;
+				tangents[i1] += t;
+				tangents[i2] += t;
+
+				bitangents[i0] += b;
+				bitangents[i1] += b;
+				bitangents[i2] += b;
+
+				smoothedNormals[i0] += n[0];
+				smoothedNormals[i1] += n[i + 1];
+				smoothedNormals[i2] += n[i + 2];
+			}
+		}
+	}
+
+	for (int i = 0; i < positions.size(); ++i)
+	{
+		smoothedNormals[i] = Normalize(smoothedNormals[i]);
+		const auto& n = smoothedNormals[i];
+		const auto& t = tangents[i];
+		const auto& b = bitangents[i];
+		tangents[i] = Normalize(t - Dot(t, n) * n);
+		bitangents[i] = Normalize(b - Dot(b, n) * n - Dot(b, tangents[i]) * tangents[i]);
 	}
 }
 
-void Model::BuildModel(std::vector<float3>& positions, std::vector<float3>& colors, std::vector<float2>& texture_coords, std::vector<float3>& normals)
+void Model::BuildModel(std::vector<float3>& positions, std::vector<float3>& colors, std::vector<float2>& texCoords, std::vector<float3>& normals, std::vector<float3>& tangents, std::vector<float3>& bitangents)
 {
 	m_indexBuffer.resize(m_indexCount);
 	m_vertexBuffer.resize(m_indexCount);
 	bool has_color_info = positions.size() == colors.size();
-	bool has_tex_coord_info = texture_coords.size() > 0;
+	bool has_tex_coord_info = texCoords.size() > 0;
 	size_t cur_index_loc = 0;
 	size_t cur_vertex_loc = 0;
 	for (auto& mesh_pair : m_pMeshes)
@@ -181,8 +255,10 @@ void Model::BuildModel(std::vector<float3>& positions, std::vector<float3>& colo
 				Vertex& v = m_vertexBuffer[cur_vertex_loc];
 				v.position = positions[pFace->Positions[i]];
 				v.color = has_color_info ? positions[pFace->Positions[i]] : float4(1.0, 1.0, 1.0, 1.0);
-				v.normal = normals[pFace->Normals[i]];
-				v.uv = has_tex_coord_info ? texture_coords[pFace->TexCoords[i]] : float2(0.0, 0.0);
+				v.normal = normals[pFace->Positions[i]];
+				v.uv = has_tex_coord_info ? texCoords[pFace->TexCoords[i]] : float2(0.0, 0.0);
+				v.tangent = tangents[pFace->Positions[i]];
+				v.bitangent = bitangents[pFace->Positions[i]];
 
 				m_indexBuffer[cur_index_loc] = cur_vertex_loc;
 
@@ -198,8 +274,10 @@ void Model::BuildModel(std::vector<float3>& positions, std::vector<float3>& colo
 				Vertex& v = m_vertexBuffer[cur_vertex_loc];
 				v.position = positions[pFace->Positions[i]];
 				v.color = has_color_info ? positions[pFace->Positions[i]] : float4(1.0, 1.0, 1.0, 1.0);
-				v.normal = normals[pFace->Normals[i]];
-				v.uv = texture_coords[pFace->TexCoords[i]];
+				v.normal = normals[pFace->Positions[i]];
+				v.uv = texCoords[pFace->TexCoords[i]];
+				v.tangent = tangents[pFace->Positions[i]];
+				v.bitangent = bitangents[pFace->Positions[i]];
 				cur_vertex_loc++;
 
 				m_indexBuffer[cur_index_loc] = vertex_start_loc;
@@ -219,13 +297,17 @@ void Model::BuildModel(std::vector<float3>& positions, std::vector<float3>& colo
 	}
 }
 
-void Model::Draw(GraphicsContext& context)
+void Model::Draw(GraphicsContext& context, std::function<void(Material*)> setMatContext)
 {
 	context.SetVertexBuffer(m_vertexBuffer.data());
 	context.SetIndexBuffer(m_indexBuffer.data());
 	for (auto& mesh_iter : m_pMeshes)
 	{
 		Mesh* pMesh = mesh_iter.second;
+		if (pMesh->pMat && setMatContext)
+		{
+			setMatContext(pMesh->pMat);
+		}
 		context.DrawIndexed(pMesh->IndexCount, pMesh->IndexStartLocation, pMesh->VertexStartLocation);
 	}
 }

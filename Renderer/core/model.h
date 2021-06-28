@@ -61,14 +61,23 @@ public:
 	Model() {}
 	~Model();
 	void LoadFromOBJ(const std::string& filename);
-	void Draw(GraphicsContext& context);
+	void Draw(GraphicsContext& context, std::function<void(Material*)> setMatContext = nullptr);
 	float3 GetCenter() const { return (m_bbox.BoxMin + m_bbox.BoxMax) * 0.5f; }
 	float GetRadius() const { return (m_bbox.BoxMax - m_bbox.BoxMin).Length() * 0.5f; }
 private:
+	void SmoothNormalAndBuildTangents(
+		std::vector<float3>& positions, 
+		std::vector<float2>& texCoords, 
+		std::vector<float3>& normals, 
+		std::vector<float3>& smoothedNormals, 
+		std::vector<float3>& tangents, 
+		std::vector<float3>& bitangents);
 	void BuildModel(std::vector<float3>& positions,
 		std::vector<float3>& colors,
-		std::vector<float2>& texture_coords,
-		std::vector<float3>& normals);
+		std::vector<float2>& texCoords,
+		std::vector<float3>& normals,
+		std::vector<float3>& tangents,
+		std::vector<float3>& bitangents);
 	std::unordered_map<std::string, Mesh*> m_pMeshes;
 	std::unordered_map<std::string, Material*> m_pMaterials;
 	std::vector<Vertex> m_vertexBuffer;

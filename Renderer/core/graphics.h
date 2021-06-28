@@ -13,6 +13,8 @@ struct VSInput
 	float3 position;
 	float2 uv;
 	float3 normal;
+	float3 tangent;
+	float3 bitangent;
 	Color color;
 };
 
@@ -23,6 +25,8 @@ struct PSInput
 	float3 positionWS;
 	float2 uv;
 	float4 color;
+	float3 tangent;
+	float3 bitangent;
 	void LerpAssgin(const PSInput& v0, const PSInput& v1, float t);
 };
 

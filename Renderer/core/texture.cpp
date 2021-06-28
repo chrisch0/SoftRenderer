@@ -109,7 +109,7 @@ void Texture::LoadFromTGA(const std::string& path)
 	{
 		ImageFlipH(this);
 	}
-	if (!origin_left_upper)
+	if (origin_left_upper)
 	{
 		ImageFlipV(this);
 	}
@@ -162,7 +162,7 @@ void Texture::SetRawValue(int x, int y, const Vec4<unsigned char>& raw)
 		m_buffer[index + 3] = raw.w;
 }
 
-float4 Texture::GetColor(int x, int y)
+float4 Texture::GetColor(int x, int y) const
 {
 	int index = (y * m_width + x) * m_channels;
 	float4 col;
@@ -183,7 +183,7 @@ void Texture::SetColor(int x, int y, const float4& col)
 		m_buffer[index + 3] = std::clamp(col.w, 0.0f, 1.0f) * 255;
 }
 
-Color Texture::SampleLevel(const SamplerState& sampler, const float2& uv, int level)
+Color Texture::SampleLevel(const SamplerState& sampler, const float2& uv, int level) const
 {
 	float2 r_uv = ResolveTexCoord(sampler.AddressU, sampler.AddressV, uv);
 	if (r_uv >= float2(0.0f, 0.0f) && r_uv <= float2(1.0f, 1.0f))

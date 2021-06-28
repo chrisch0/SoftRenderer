@@ -165,3 +165,9 @@ void Cube::Release()
 	if (m_depthBuffer != nullptr)
 		delete m_depthBuffer;	
 }
+
+void Cube::OnResize(int width, int height)
+{
+	delete m_depthBuffer;
+	m_depthBuffer = new DepthBuffer(width, height);
+}

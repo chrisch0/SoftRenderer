@@ -67,3 +67,8 @@ void Triangle::Release()
 {
 
 }
+
+void Triangle::OnResize(int width, int height)
+{
+
+}

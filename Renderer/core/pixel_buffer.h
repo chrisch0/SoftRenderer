@@ -35,7 +35,7 @@ public:
 	~PixelBuffer()
 	{
 		if (AllocateMem)
-			delete[](m_buffer);
+			delete[] m_buffer;
 	}
 
 	PixelBuffer(const PixelBuffer&) = delete;

@@ -17,10 +17,10 @@ public:
 	size_t GetSize() const { return m_size; }
 	Vec4<unsigned char> GetRawValue(int x, int y);
 	void SetRawValue(int x, int y, const Vec4<unsigned char>& raw);
-	float4 GetColor(int x, int y);
+	float4 GetColor(int x, int y) const;
 	void SetColor(int x, int y, const float4& col);
 
-	Color SampleLevel(const SamplerState& sampler, const float2& uv, int level = 0);
+	Color SampleLevel(const SamplerState& sampler, const float2& uv, int level = 0) const;
 private:
 	std::string m_name;
 	int m_width;

@@ -9,12 +9,22 @@ VSOut BoatVS(VSInput* vsInput, void** cb)
 	float4 view_pos = Mul(float4(vsInput->position, 1.0f), passCB->ViewMat);
 	vs_out.sv_position = Mul(view_pos, passCB->ProjMat);
 	vs_out.uv = vsInput->uv;
+	vs_out.normal = vsInput->normal;
+	vs_out.tangent = vsInput->tangent;
+	vs_out.bitangent = vsInput->bitangent;
 	return vs_out;
 }
 
 Color BoatPS(PSInput* psInput, void** cb, Texture** texs, SamplerState** samplers)
 {
-	return Color(1.0, 1.0, 1.0, 1.0);
+	const SamplerState& linear_sampler = *samplers[0];
+	const Texture& ambient_tex = *texs[0];
+	const Texture& normal_tex = *texs[1];
+	float4 normal_sampled = normal_tex.SampleLevel(linear_sampler, psInput->uv);
+	float3 normal_t = float3(normal_sampled) * 2.0f - float3(1.0f);
+
+	return Color(psInput->normal, 1.0);
+	//return texs[0]->SampleLevel(*samplers[0], psInput->uv);
 }
 
 void Boat::InitScene(FrameBuffer* frameBuffer, Camera& camera)
@@ -50,11 +60,23 @@ void Boat::Draw(GraphicsContext& context)
 	context.SetConstantBuffer(0, &m_passCB);
 	context.SetRenderTarget(m_frameBuffer, m_depthBuffer); 
 	context.SetPipelineState(&m_pipelineState);
-	m_boatModel.Draw(context);
+
+	auto set_mat_cxt = [&](Material* pMat) -> void
+	{
+		context.SetSRV(0, pMat->pAmbientMap);
+		context.SetSampler(0, &m_linearSampler);
+	};
+	m_boatModel.Draw(context, set_mat_cxt);
 }
 
 void Boat::Release()
 {
 	if (m_depthBuffer != nullptr)
 		delete m_depthBuffer;
+}
+
+void Boat::OnResize(int width, int height)
+{
+	delete m_depthBuffer;
+	m_depthBuffer = new DepthBuffer(width, height);
 }

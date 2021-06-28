@@ -94,3 +94,8 @@ void FullScreenQuad::Release()
 {
 
 }
+
+void FullScreenQuad::OnResize(int width, int height)
+{
+
+}

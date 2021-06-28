@@ -13,4 +13,5 @@ public:
 	virtual void Update(const Timer& timer, const IO& io, Camera& camera) = 0;
 	virtual void Draw(GraphicsContext& context) = 0;
 	virtual void Release() = 0;
+	virtual void OnResize(int width, int height) = 0;
 };
