@@ -23,6 +23,7 @@ struct PSInput
 	float4 sv_position;
 	float3 normal;
 	float3 positionWS;
+	float4 positionLS;
 	float2 uv;
 	float4 color;
 	float3 tangent;
@@ -43,7 +44,7 @@ using VSOut = PSInput;
 using Vertex = VSInput;
 
 using VertexShader = std::function<VSOut(VSInput*, void**)>;
-using PixelShader = std::function<Color(PSInput*, void**, Texture**, SamplerState**)>;
+using PixelShader = std::function<Color(PSInput*, void**, void**, SamplerState**)>;
 
 struct Viewport
 {
@@ -153,7 +154,7 @@ public:
 	{
 		m_constantBuffer[slot] = cb;
 	}
-	void SetSRV(size_t slot, Texture* tex)
+	void SetSRV(size_t slot, void* tex)
 	{
 		m_textureSlots[slot] = tex;
 	}
@@ -181,6 +182,6 @@ private:
 	PipelineState* m_pipelineState;
 	Viewport* m_viewport;
 	void* m_constantBuffer[10];
-	Texture* m_textureSlots[10];
+	void* m_textureSlots[10];
 	SamplerState* m_samplerSlots[10];
 };

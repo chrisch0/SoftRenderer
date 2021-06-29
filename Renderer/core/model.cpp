@@ -203,7 +203,7 @@ void Model::SmoothNormalAndBuildTangents(std::vector<float3>& positions, std::ve
 				float x1 = uv1.x - uv0.x, x2 = uv2.x - uv0.x;
 				float y1 = uv2.y - uv0.y, y2 = uv2.y - uv0.y;
 
-				float r = 1.0f / (x1 * y2 - x2 * y1);
+				float r = 1.0f / std::max((x1 * y2 - x2 * y1), 0.00001f);
 				float3 t = (e1 * y2 - e2 * y1) * r;
 				float3 b = (e2 * x1 - e1 * x2) * r;
 
@@ -327,6 +327,7 @@ void GetVertexInfo(const std::string& dataBuffer, size_t& idx, size_t end, std::
 	// vertex position
 	if (dataBuffer[idx] == ' ' || dataBuffer[idx] == '\t')
 	{
+		SkipToToken(dataBuffer, idx, end);
 		int num_components = CountNumricComponentsInLine(dataBuffer, idx, end);
 		if (num_components == 3)
 		{
@@ -359,6 +360,7 @@ void GetVertexInfo(const std::string& dataBuffer, size_t& idx, size_t end, std::
 	else if (dataBuffer[idx] == 't')
 	{
 		++idx;
+		SkipToToken(dataBuffer, idx, end);
 		float u = std::atof(&dataBuffer[idx]); SkipSpaces(dataBuffer, idx);	SkipToken(dataBuffer, idx, end);
 		float v = std::atof(&dataBuffer[idx]);
 		texCoords.emplace_back(u, v);
@@ -366,6 +368,8 @@ void GetVertexInfo(const std::string& dataBuffer, size_t& idx, size_t end, std::
 	// vertex normal
 	else if (dataBuffer[idx] == 'n')
 	{
+		++idx;
+		SkipToToken(dataBuffer, idx, end);
 		float x = std::atof(&dataBuffer[idx]); SkipSpaces(dataBuffer, idx);	SkipToken(dataBuffer, idx, end);
 		float y = std::atof(&dataBuffer[idx]); SkipSpaces(dataBuffer, idx); SkipToken(dataBuffer, idx, end);
 		float z = std::atof(&dataBuffer[idx]);

@@ -57,13 +57,13 @@ public:
 		m_bufferSize = m_width * m_height * NumChannels;
 	}
 
-	T GetValue(size_t idx)
+	T GetValue(size_t idx) const
 	{
 		assert(idx < m_bufferSize);
 		return m_buffer[idx];
 	}
 
-	T GetValue(int x, int y)
+	T GetValue(int x, int y) const
 	{
 		int index = m_width * y * NumChannels + x * NumChannels;
 		return m_buffer[index];

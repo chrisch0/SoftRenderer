@@ -342,7 +342,7 @@ T Dot(const Vec3<T>& v1, const Vec3<T>& v2)
 template <typename T>
 Vec3<T> Normalize(const Vec3<T>& v)
 {
-	return v / v.Length();
+	return v / std::max<T>(v.Length(), 0.00001);
 }
 
 template <typename T>

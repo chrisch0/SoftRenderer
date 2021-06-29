@@ -12,7 +12,7 @@ VSOut TriangleVS(VSInput* vsInput, void** cb)
 	return vs_out;
 }
 
-Color TrianglePS(PSInput* psInput, void** cb, Texture** texs, SamplerState** samplers)
+Color TrianglePS(PSInput* psInput, void** cb, void** srvs, SamplerState** samplers)
 {
 	float p = (std::fmod(psInput->uv.x * 10.f, 1.0) > 0.5) ^ (std::fmod(psInput->uv.y * 10.f, 1.0) < 0.5);
 	float2 col = psInput->uv * p;

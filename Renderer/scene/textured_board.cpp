@@ -13,9 +13,10 @@ VSOut TexturedBoardVS(VSInput* vsInput, void** cb)
 	return vs_out;
 }
 
-Color TexturedBoardPS(PSInput* psInput, void** cb, Texture** texs, SamplerState** samplers)
+Color TexturedBoardPS(PSInput* psInput, void** cb, void** srvs, SamplerState** samplers)
 {
-	return texs[0]->SampleLevel(*samplers[0], psInput->uv);
+	const Texture& diffuse_map = *(Texture*)srvs[0];
+	return diffuse_map.SampleLevel(*samplers[0], psInput->uv);
 }
 
 void TexturedBoard::InitScene(FrameBuffer* frameBuffer, Camera& camera)

@@ -14,7 +14,7 @@ VSOut FullScreenQuadVS(VSInput* vsInput, void** cb)
 	return vsOut;
 }
 
-Color FullScreenQuadPS(PSInput* psInput, void** cb, Texture** texs, SamplerState** samplers)
+Color FullScreenQuadPS(PSInput* psInput, void** cb, void** srvs, SamplerState** samplers)
 {
 	FullScreenQuadCB* passCb = (FullScreenQuadCB*)cb[0];
 	float2 uv = psInput->uv;

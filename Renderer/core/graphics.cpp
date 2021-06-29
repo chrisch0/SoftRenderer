@@ -80,8 +80,8 @@ void GraphicsContext::DrawIndexed(uint32_t indexCount, uint32_t startIndexLocati
 			for (int i = 0; i < 3; ++i)
 			{
 				float3 ndc_coord = float3(ps_in_vertices[i].sv_position);
-				float x = (ndc_coord.x + 1.f) * 0.5f * (float)m_frameBuffer->GetWidth() + m_viewport->TopLeftX;
-				float y = (1.f - ndc_coord.y) * 0.5f * (float)m_frameBuffer->GetHeight() + m_viewport->TopLeftY;
+				float x = (ndc_coord.x + 1.f) * 0.5f * (float)m_viewport->Width + m_viewport->TopLeftX;
+				float y = (1.f - ndc_coord.y) * 0.5f * (float)m_viewport->Height + m_viewport->TopLeftY;
 				float z = m_viewport->MinDepth + ndc_coord.z * (m_viewport->MaxDepth - m_viewport->MinDepth);
 				ps_in_vertices[i].sv_position = float4(x, y, z, 1.0f);
 				screen_coords[i] = float2(x, y);
@@ -96,9 +96,9 @@ void GraphicsContext::DrawIndexed(uint32_t indexCount, uint32_t startIndexLocati
 			int x_max = (int)std::ceil(range_max.x);
 			int y_max = (int)std::ceil(range_max.y);
 			x_min = std::max(x_min, 0);
-			x_max = std::min(x_max, m_frameBuffer->GetWidth());
+			x_max = std::min(x_max, (int)m_viewport->Width);
 			y_min = std::max(y_min, 0);
-			y_max = std::min(y_max, m_frameBuffer->GetHeight());
+			y_max = std::min(y_max, (int)m_viewport->Height);
 
 			// TODO: add wire frame rasterizer mode
 	//#pragma omp parallel for schedule(dynamic)
@@ -144,6 +144,8 @@ void GraphicsContext::DrawIndexed(uint32_t indexCount, uint32_t startIndexLocati
 						}
 
 						// interpolate vertex attributes
+						if (m_frameBuffer == nullptr)
+							continue;
 						PSInput pixel_attri;
 						{
 							float* a0 = (float*)&(ps_in_vertices[0]);

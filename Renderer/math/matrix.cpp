@@ -62,6 +62,11 @@ void Mat4x4::SetCol(int index, const float4& v)
 	m[3][index] = v.w;
 }
 
+void Mat4x4::SetZero()
+{
+	std::memcpy(m, 0, 16 * sizeof(float));
+}
+
 float4 Mul(const float4& v, const float4x4& m)
 {
 	float4 x = float4(m.m[0][0], m.m[0][1], m.m[0][2], m.m[0][3]) * v.x;

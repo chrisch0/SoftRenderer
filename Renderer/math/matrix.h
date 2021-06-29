@@ -45,6 +45,7 @@ public:
 	void SetRow(int index, const float4& v);
 	void SetCol(int index, const float3& v, float w = 1.0);
 	void SetCol(int index, const float4& v);
+	void SetZero();
 };
 
 using float4x4 = Mat4x4;

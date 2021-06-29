@@ -2,6 +2,7 @@
 #include <string>
 #include "math/math.h"
 #include "Sampler.h"
+#include "pixel_buffer.h"
 
 class Texture
 {

@@ -2,7 +2,7 @@
 #include <iostream>
 
 Camera::Camera()
-	: m_position(float3(1.0f, 0.0f, 0.0f)), m_target(float3(0.0f, 0.0f, 0.0f)), m_aspect(1.0)
+	: m_position(float3(1.0f, 0.0f, 0.0f)), m_target(float3(0.0f, 0.0f, 0.0f)), m_aspect(1.0), m_isPerspective(true)
 {
 	m_fov = ToRadians(90.f);
 	m_up = float3(0.f, 1.f, 0.f);
@@ -13,8 +13,8 @@ Camera::Camera()
 	UpdateProjectionMatrix();
 }
 
-Camera::Camera(const float3& pos, const float3& target, float aspect)
-	: m_position(pos), m_target(target), m_aspect(aspect)
+Camera::Camera(const float3& pos, const float3& target, float aspect, bool isPerspective)
+	: m_position(pos), m_target(target), m_aspect(aspect), m_isPerspective(isPerspective)
 {
 	m_fov = ToRadians(90.f);
 	m_up = float3(0.f, 1.f, 0.f);
@@ -58,6 +58,23 @@ void Camera::SetPosition(const float3& pos)
 void Camera::SetTarget(const float3& target)
 {
 	m_target = target;
+}
+
+void Camera::SetCameraType(bool isPerspective)
+{
+	m_isPerspective = isPerspective;
+	m_projMatrix = float4x4();
+	UpdateProjectionMatrix();
+}
+
+void Camera::SetWidth(float width)
+{
+	m_width = width;
+}
+
+void Camera::SetHeight(float height)
+{
+	m_height = height;
 }
 
 float3 Camera::GetPosition() const
@@ -129,6 +146,14 @@ void Camera::UpdateViewMatrix()
 
 void Camera::UpdateProjectionMatrix() 
 {
+	if (m_isPerspective)
+		UpdatePerspectiveProMat();
+	else
+		UpdateOrthographicProMat();
+}
+
+void Camera::UpdatePerspectiveProMat()
+{
 	float Y = 1.f / std::tan(m_fov * 0.5);
 	float X = Y / m_aspect;
 	//float Z = m_near / (m_near - m_far);
@@ -141,4 +166,14 @@ void Camera::UpdateProjectionMatrix()
 	m_projMatrix.m[2][3] = 1.f;
 	m_projMatrix.m[3][2] = W;
 	m_projMatrix.m[3][3] = 0.f;
+
+}
+
+void Camera::UpdateOrthographicProMat()
+{
+	m_projMatrix.m[0][0] = 2.0f / m_width;
+	m_projMatrix.m[1][1] = 2.0f / m_height;
+	m_projMatrix.m[2][2] = 1.0f / (m_far - m_near);
+	m_projMatrix.m[3][2] = m_near / (m_near - m_far);
+	m_projMatrix.m[3][3] = 1.0f;
 }
