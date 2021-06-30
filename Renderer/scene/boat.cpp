@@ -17,6 +17,7 @@ VSOut BoatVS(VSInput* vsInput, void** cb)
 	VSOut vs_out;
 	float4 view_pos = Mul(float4(vsInput->position, 1.0f), passCB->ViewMat);
 	vs_out.sv_position = Mul(view_pos, passCB->ProjMat);
+	//vs_out.sv_position = float4(vsInput->position, 1.0);
 	vs_out.uv = vsInput->uv;
 	vs_out.normal = vsInput->normal;
 	vs_out.tangent = vsInput->tangent;
@@ -83,19 +84,14 @@ Color BoatPS(PSInput* psInput, void** cb, void** srvs, SamplerState** samplers)
 	spec = std::pow(spec, matCB->IndexOfRefraction);
 	float3 specular = float3(specular_tex.SampleLevel(linear_sampler, psInput->uv)) * spec;
 
-	//return normal_sampled;
-	//return Color(shadow, shadow, shadow, 1.0);
 	return Color((specular + diffuse) * shadow, 1.0);
-	//return texs[0]->SampleLevel(*samplers[0], psInput->uv);
 }
 
 void Boat::InitScene(FrameBuffer* frameBuffer, Camera& camera)
 {
 	m_boatModel.LoadFromOBJ("assets/Fishing Boat/Boat.obj");
-	//camera.SetWidth(1400.f);
-	//camera.SetHeight(1400.0f);
-	//camera.SetCameraType(false);
-	//camera.SetPosition(m_boatModel.GetCenter() + float3(-m_boatModel.GetRadius(), m_boatModel.GetRadius(), -m_boatModel.GetRadius()));
+	m_quad.CreateAsQuad();
+
 	camera.SetTarget(m_boatModel.GetCenter());
 	camera.SetPosition(m_boatModel.GetCenter() + float3(m_boatModel.GetRadius()));
 
@@ -141,12 +137,13 @@ void Boat::Update(const Timer& timer, const IO& io, Camera& camera)
 {
 	//float theta = 2.0f * PI * timer.TotalTime() * 0.5f;
 	//camera.SetPosition(float3(std::cos(theta), std::sin(theta), 0.0) * m_boatModel.GetRadius());
-	m_passCB.ViewMat = m_directionalLight.GetViewMatrix();
-	m_passCB.ProjMat = m_directionalLight.GetProjectionMatrix();
+	m_passCB.ViewMat = camera.GetViewMatrix();
+	m_passCB.ProjMat = camera.GetProjectionMatrix();
 	m_passCB.LightColor = float3(1.0f);
 	m_passCB.LightDir = Normalize(m_directionalLight.GetPosition() - m_directionalLight.GetTarget());
 	m_passCB.LightIntensity = 1.0f;
 	m_passCB.DirectLightMVP = m_directionalLight.GetViewMatrix() * m_directionalLight.GetProjectionMatrix();
+	//m_passCB.DirectLightProj = m_directionalLight.GetProjectionMatrix();
 }
 
 void Boat::Draw(GraphicsContext& context)
@@ -158,7 +155,7 @@ void Boat::Draw(GraphicsContext& context)
 	context.ClearDepth(m_shadowMap, 1.0f);
 	context.SetConstantBuffer(0, &m_passCB);
 	context.SetRenderTarget(nullptr, m_shadowMap);
-	context.SetPipelineState(&m_pipelineState);
+	context.SetPipelineState(&m_shadowTestState);
 	m_boatModel.Draw(context);
 
 	m_viewport.Width = m_frameBuffer->GetWidth();
@@ -179,6 +176,7 @@ void Boat::Draw(GraphicsContext& context)
 		context.SetSampler(0, &m_linearSampler);
 	};
 	m_boatModel.Draw(context, set_mat_cxt);
+	//m_quad.Draw(context);
 }
 
 void Boat::Release()

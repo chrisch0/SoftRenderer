@@ -64,6 +64,7 @@ public:
 	void Draw(GraphicsContext& context, std::function<void(Material*)> setMatContext = nullptr);
 	float3 GetCenter() const { return (m_bbox.BoxMin + m_bbox.BoxMax) * 0.5f; }
 	float GetRadius() const { return (m_bbox.BoxMax - m_bbox.BoxMin).Length() * 0.5f; }
+	void CreateAsQuad();
 private:
 	void SmoothNormalAndBuildTangents(
 		std::vector<float3>& positions, 

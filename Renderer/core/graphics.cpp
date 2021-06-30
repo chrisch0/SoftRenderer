@@ -6,6 +6,7 @@ void PSInput::LerpAssgin(const PSInput& v0, const PSInput& v1, float t)
 	sv_position = Lerp(v0.sv_position, v1.sv_position, t);
 	normal = Lerp(v0.normal, v1.normal, t);
 	positionWS = Lerp(v0.positionWS, v1.positionWS, t);
+	positionLS = Lerp(v0.positionLS, v1.positionLS, t);
 	uv = Lerp(v0.uv, v1.uv, t);
 	color = Lerp(v0.color, v1.color, t);
 	tangent = Lerp(v0.tangent, v1.tangent, t);
@@ -23,7 +24,7 @@ bool DepthTest(eDepthFunc testFunc, float curDepth, float prevDepth);
 void GraphicsContext::DrawIndexed(uint32_t indexCount, uint32_t startIndexLocation /* = 0 */, uint32_t baseVertexLocation /* = 0 */)
 {
 	auto num_faces = indexCount / 3;
-#pragma omp parallel for schedule(dynamic)
+	#pragma omp parallel for schedule(dynamic)
 	for (int face_idx = 0; face_idx < num_faces; ++face_idx)
 	{
 		std::array<VSOut, 10> vs_out_vertices;

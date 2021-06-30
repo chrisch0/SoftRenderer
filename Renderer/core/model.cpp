@@ -163,8 +163,42 @@ void Model::LoadFromOBJ(const std::string& filename)
 		BuildModel(positions, colors, texture_coords, smoothed_normals, tangents, bitangents);
 
 	}
+}
 
+void Model::CreateAsQuad()
+{
+	m_vertexBuffer.clear();
+	m_indexBuffer.clear();
+	Vertex v;
+	v.position = float3(-1.f, -1.f, 0.1f);
+	v.normal = float3(0.f, 0.f, -1.f);
+	v.uv = float2(0.f, 1.f);
+	v.color = float4(1.f, 1.f, 1.f, 1.f);
+	m_vertexBuffer.push_back(v);
+	v.position = float3(1.f, -1.f, 0.1f);
+	v.uv = float2(1.f, 1.f);
+	m_vertexBuffer.push_back(v);
+	v.position = float3(-1.f, 1.f, 0.1f);
+	v.uv = float2(0.f, 0.f);
+	m_vertexBuffer.push_back(v);
+	v.position = float3(1.f, 1.f, 0.1f);
+	v.uv = float2(1.f, 0.f);
+	m_vertexBuffer.push_back(v);
+	
 
+	m_indexBuffer.push_back(2);
+	m_indexBuffer.push_back(3);
+	m_indexBuffer.push_back(0);
+	m_indexBuffer.push_back(3);
+	m_indexBuffer.push_back(1);
+	m_indexBuffer.push_back(0);
+
+	Mesh* mesh = new Mesh("Full Screen Quad");
+	mesh->IndexCount = 6;
+	mesh->IndexStartLocation = 0;
+	mesh->VertexStartLocation = 0;
+
+	m_pMeshes.insert({ mesh->Name, mesh });
 }
 
 void Model::SmoothNormalAndBuildTangents(std::vector<float3>& positions, std::vector<float2>& texCoords, std::vector<float3>& normals, std::vector<float3>& smoothedNormals, std::vector<float3>& tangents, std::vector<float3>& bitangents)
@@ -183,9 +217,13 @@ void Model::SmoothNormalAndBuildTangents(std::vector<float3>& positions, std::ve
 			{
 				indices[i] = pFace->Positions[i];
 				p[i] = positions[pFace->Positions[i]];
-				uv[i] = texCoords[pFace->TexCoords[i]];
+				if (!texCoords.empty())
+					uv[i] = texCoords[pFace->TexCoords[i]];
 				n[i] = normals[pFace->Normals[i]];
 			}
+
+			if (texCoords.empty())
+				continue;
 
 			for (int i = 0; i < pFace->Positions.size() - 2; ++i)
 			{
@@ -226,6 +264,8 @@ void Model::SmoothNormalAndBuildTangents(std::vector<float3>& positions, std::ve
 	{
 		smoothedNormals[i] = Normalize(smoothedNormals[i]);
 		const auto& n = smoothedNormals[i];
+		if (texCoords.empty())
+			continue;
 		const auto& t = tangents[i];
 		const auto& b = bitangents[i];
 		tangents[i] = Normalize(t - Dot(t, n) * n);

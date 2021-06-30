@@ -114,7 +114,7 @@ void Camera::Update(const float4& deltaCursor, const float deltaScroll)
 	distance *= (float)std::pow(0.95, deltaScroll);
 	theta -= deltaCursor.x * factor;
 	phi -= deltaCursor.y * factor;
-	phi = std::clamp<float>(phi, std::numeric_limits<float>::epsilon(), PI - std::numeric_limits<float>::epsilon());
+	phi = std::clamp<float>(phi, 1e-5f, PI - 1e-5f);
 	float3 offset = float3(
 		distance * (float)std::sin(phi) * (float)std::cos(theta),
 		distance * (float)std::cos(phi),

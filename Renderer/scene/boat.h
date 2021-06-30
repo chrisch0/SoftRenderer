@@ -9,6 +9,7 @@ struct BoatPassCB
 	float4x4 ViewMat;
 	float4x4 ProjMat;
 	float4x4 DirectLightMVP;
+	float4x4 DirectLightProj;
 	float3 ViewPos;
 	float3 LightDir;
 	float3 LightColor;
@@ -38,6 +39,7 @@ private:
 	PipelineState m_pipelineState;
 	PipelineState m_shadowTestState;
 	Model m_boatModel;
+	Model m_quad;
 	SamplerState m_linearSampler;
 	Viewport m_viewport;
 };

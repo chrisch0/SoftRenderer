@@ -14,8 +14,8 @@ int main(int argc, const char* argv[])
 	FullScreenQuad full_scene_quad;
 	Triangle triangle;
 	Cube cube;
-	Boat boat;
 	TexturedBoard textured_board;
+	Boat boat;
 	renderer.Initialize(&boat);
 	renderer.InitScene();
 	renderer.MainLoop();
