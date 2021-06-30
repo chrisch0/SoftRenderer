@@ -101,7 +101,10 @@ void Model::LoadFromOBJ(const std::string& filename)
 			{
 				++iter;
 				SkipSpaces(data_buffer, iter);
-				mesh_name = std::string(&data_buffer[iter]);
+				auto name_end = iter;
+				while (name_end < line_end && !IsLineEnd(data_buffer[name_end]))
+					name_end++;
+				mesh_name = std::string(&data_buffer[iter], name_end - iter);
 				auto mesh_iter = m_pMeshes.find(mesh_name);
 				if (mesh_iter != m_pMeshes.end())
 				{
@@ -300,8 +303,10 @@ void Model::BuildModel(std::vector<float3>& positions, std::vector<float3>& colo
 				v.tangent = tangents[pFace->Positions[i]];
 				v.bitangent = bitangents[pFace->Positions[i]];
 
-				m_indexBuffer[cur_index_loc] = cur_vertex_loc;
+				m_indexBuffer[cur_index_loc] = cur_vertex_loc - pMesh->VertexStartLocation;
 
+				if (m_indexBuffer[cur_index_loc] + pMesh->VertexStartLocation > m_indexCount)
+					std::cout << m_indexBuffer[cur_index_loc] << " " << pMesh->VertexStartLocation << std::endl;
 				cur_vertex_loc++;
 				cur_index_loc++;
 
@@ -315,17 +320,20 @@ void Model::BuildModel(std::vector<float3>& positions, std::vector<float3>& colo
 				v.position = positions[pFace->Positions[i]];
 				v.color = has_color_info ? positions[pFace->Positions[i]] : float4(1.0, 1.0, 1.0, 1.0);
 				v.normal = normals[pFace->Positions[i]];
-				v.uv = texCoords[pFace->TexCoords[i]];
+				v.uv = has_tex_coord_info ? texCoords[pFace->TexCoords[i]] : float2(0.0, 0.0);
 				v.tangent = tangents[pFace->Positions[i]];
 				v.bitangent = bitangents[pFace->Positions[i]];
 				cur_vertex_loc++;
 
-				m_indexBuffer[cur_index_loc] = vertex_start_loc;
+				m_indexBuffer[cur_index_loc] = vertex_start_loc - pMesh->VertexStartLocation;
 				cur_index_loc++;
-				m_indexBuffer[cur_index_loc] = vertex_start_loc + i - 1;
+				m_indexBuffer[cur_index_loc] = vertex_start_loc + i - 1 - pMesh->VertexStartLocation;
 				cur_index_loc++;
-				m_indexBuffer[cur_index_loc] = vertex_start_loc + i;
+				m_indexBuffer[cur_index_loc] = vertex_start_loc + i - pMesh->VertexStartLocation;
+				if (m_indexBuffer[cur_index_loc] + pMesh->VertexStartLocation > m_indexCount)
+					std::cout << m_indexBuffer[cur_index_loc] << " " << pMesh->VertexStartLocation << std::endl;
 				cur_index_loc++;
+
 
 				pMesh->BBox.Min(v.position);
 				pMesh->BBox.Max(v.position);
